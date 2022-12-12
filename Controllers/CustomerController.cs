@@ -16,7 +16,7 @@ public class CustomerController : Controller
         _logger = logger;
         _mediator = mediator;
     }
-    [Authorize]
+    [AuthorizeAttribute]
     [HttpPost("add")]
     public async Task<IActionResult> AddCustomer([FromBody] AddCustomerCommand command, [FromServices] IMediator mediator)
     {
@@ -25,6 +25,7 @@ public class CustomerController : Controller
         var result = await mediator.Send(command);
         return StatusCode((int)result.STATUSCODE, result);
     }
+    [HttpPost("login")]
 
     public async Task<IActionResult> LoginCustomer([FromBody] LoginCustomerCommand command, [FromServices] IMediator mediator)
     {

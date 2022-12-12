@@ -62,8 +62,11 @@ namespace Project.UseCases.Customers
                     CustomerLoginDto _customer_login_dto = _mapper.Map<CustomerLoginDto>(_customer_loging);
                     var user_claims = new Claim[] {};
                     user_claims = new[] {
-                        new Claim("Account", _customer_login_dto.USERNAME),
-                        new Claim("ID", _customer_login_dto.ID.ToString())
+                        new Claim("ID", _customer_login_dto?.ID.ToString()),
+                        new Claim("Username", _customer_login_dto?.USERNAME),
+                        new Claim("Name", _customer_login_dto.NAME),
+                        new Claim("Code", _customer_login_dto.CODE)
+
                     };
                     _customer_login_dto.TOKEN = _tokenRepo.BuildToken(user_claims);
                     return new LoginCustomerResponse {

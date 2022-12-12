@@ -18,5 +18,12 @@ namespace Project.Models
             CreateMap<Customer, CustomerDto>();
         }
     }
+    public class CustomerLoginMappingProfile : Profile
+    {
+        public CustomerLoginMappingProfile()
+        {
+            CreateMap<Customer, CustomerLoginDto>();
+        }
+    }
    
 }

@@ -41,20 +41,25 @@ namespace Project.UseCases.Customers
     {
         private readonly IMapper _mapper;
         private readonly DataContext _dbContext;
-        private readonly CustomerRepository _customerRepo;
+        private readonly IUserAccessor _userAccessor;
+        //private readonly CustomerRepository _customerRepo;
 
-        public AddCustomerHandler(DataContext dbContext,IMapper mapper, CustomerRepository CustomerRepo)
+        public AddCustomerHandler(DataContext dbContext,IMapper mapper,IUserAccessor userAccessor)
         {
             _mapper = mapper;
             _dbContext = dbContext;
-            _customerRepo = CustomerRepo;
+            _userAccessor = userAccessor;
+           // _customerRepo = CustomerRepo;
         }
         public async Task<AddCustomerResponse> Handle(AddCustomerCommand command, CancellationToken cancellationToken)
         {
             using (var dbContextTransaction = _dbContext.Database.BeginTransaction())
             {
                 try {
-
+                    //HttpContextAccessor x = new HttpContextAccessor();
+                    //string? token = x.HttpContext?.Request.Headers["Authorization"].ToString().Split(" ")[1];
+                    Console.WriteLine(_userAccessor.getID());
+                    CustomerRepository _customerRepo = new CustomerRepository(_dbContext);
                     Project.Models.Customer? _exist_customer_with_username = await _dbContext.Customers.FirstOrDefaultAsync(x => x.USERNAME == command.Username, cancellationToken);
                     if (_exist_customer_with_username != null)
                     {

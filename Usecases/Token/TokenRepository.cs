@@ -10,18 +10,22 @@ namespace Project.UseCases.Tokens
         private readonly IConfiguration _config;
         private readonly string JWT_token_secret_key;
         private readonly string JWT_token_issuer;
+        private readonly string JWT_token_Audience;
+
         public TokenRepository(IConfiguration config)
         {
             this._config = config;
             //this.EXPIRY_DURATION_MINUTES = _config["Jwt:TimeExpired"];
             this.JWT_token_secret_key = _config["Jwt:Key"];
             this.JWT_token_issuer = _config["Jwt:Issuer"];
+            this.JWT_token_Audience = _config["Jwt:Audience"];
+
         }
         public string BuildToken(Claim[] claims)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWT_token_secret_key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
-            var tokenDescriptor = new JwtSecurityToken(JWT_token_issuer, JWT_token_issuer, claims,
+            var tokenDescriptor = new JwtSecurityToken(JWT_token_issuer, JWT_token_Audience, claims,
                 expires: DateTime.Now.AddMinutes(EXPIRY_DURATION_MINUTES), signingCredentials: credentials);
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }

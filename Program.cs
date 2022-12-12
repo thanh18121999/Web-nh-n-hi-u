@@ -7,18 +7,26 @@ using MediatR;
 using System.Reflection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-
+using Project.UseCases.Customers;
+using Project.UseCases.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<IUserAccessor, UserAccessor>();
+builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
+builder.Services.AddTransient<ITokenRepository, TokenRepository>();
 // Add services to the container.
+builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
-builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 //builder.Services.AddMediatR(typeof(Program).GetTypeInfo().Assembly);
 //builder.Services.AddMediatR(typeof(MyHandler));
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 //builder.Services.AddCustomRequestValidation();
+
+
 
 builder.Services.AddAuthentication("Bearer")
         .AddJwtBearer("Bearer", options =>
@@ -62,6 +70,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<TokenMiddleware>();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

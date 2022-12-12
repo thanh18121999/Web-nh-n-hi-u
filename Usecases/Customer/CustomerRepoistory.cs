@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Project.Data;
 namespace Project.UseCases.Customers
 {
-    public class CustomerRepository
+    public class CustomerRepository : ICustomerRepository
     {
         public CustomerRepository(DataContext _dbContext)
         {
