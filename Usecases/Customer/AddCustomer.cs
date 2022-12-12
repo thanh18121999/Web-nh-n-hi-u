@@ -5,7 +5,9 @@ using FluentValidation;
 using System.Net;
 using Project.Data;
 using Project.Models.Dto;
-namespace Project.UseCases.Customer
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+namespace Project.UseCases.Customers
 {
     public class AddCustomerResponse 
     {
@@ -15,6 +17,7 @@ namespace Project.UseCases.Customer
     }
     public class AddCustomerCommand : IRequest<AddCustomerResponse>
     {
+        public string? Username {get;set;}
         public string? Name {get;set;}
         public int Sex {get;set;}
         public string? Identify {get;set;}
@@ -26,6 +29,7 @@ namespace Project.UseCases.Customer
     {
         public AddCustomerValidator()
         {
+            RuleFor(x => x.Username).NotNull().NotEmpty().WithMessage("Username không được trống");
             RuleFor(x => x.Name).NotNull().NotEmpty().WithMessage("Tên không được trống");
             RuleFor(x => x.Identify).NotNull().NotEmpty().WithMessage("CMND không được trống");
             RuleFor(x => x.Email).NotNull().NotEmpty().WithMessage("Email không được trống");
@@ -37,20 +41,55 @@ namespace Project.UseCases.Customer
     {
         private readonly IMapper _mapper;
         private readonly DataContext _dbContext;
+        private readonly CustomerRepository _customerRepo;
 
-        public AddCustomerHandler(DataContext dbContext,IMapper mapper)
+        public AddCustomerHandler(DataContext dbContext,IMapper mapper, CustomerRepository CustomerRepo)
         {
             _mapper = mapper;
             _dbContext = dbContext;
+            _customerRepo = CustomerRepo;
         }
         public async Task<AddCustomerResponse> Handle(AddCustomerCommand command, CancellationToken cancellationToken)
         {
             using (var dbContextTransaction = _dbContext.Database.BeginTransaction())
             {
                 try {
+
+                    Project.Models.Customer? _exist_customer_with_username = await _dbContext.Customers.FirstOrDefaultAsync(x => x.USERNAME == command.Username, cancellationToken);
+                    if (_exist_customer_with_username != null)
+                    {
+                        return new AddCustomerResponse {
+                            MESSAGE = "Username đã được sử dụng!",
+                            STATUSCODE = HttpStatusCode.BadRequest
+                        };
+                    }
+                    Project.Models.Customer? _exist_customer_with_phone = await _dbContext.Customers.FirstOrDefaultAsync(x => x.PHONE == command.Phone, cancellationToken);
+                    if (_exist_customer_with_phone != null)
+                    {
+                        return new AddCustomerResponse {
+                            MESSAGE = "SĐT đã được sử dụng!",
+                            STATUSCODE = HttpStatusCode.BadRequest
+                        };
+                    }
+                    Project.Models.Customer? _exist_customer_with_email = await _dbContext.Customers.FirstOrDefaultAsync(x => x.EMAIL == command.Email, cancellationToken);
+                    if (_exist_customer_with_phone != null)
+                    {
+                        return new AddCustomerResponse {
+                            MESSAGE = "Email đã được sử dụng!",
+                            STATUSCODE = HttpStatusCode.BadRequest
+                        };
+                    }
+                    Project.Models.Customer? _exist_customer_with_identity = await _dbContext.Customers.FirstOrDefaultAsync(x => x.IDENTIFY == command.Identify, cancellationToken);
+                    if (_exist_customer_with_identity != null)
+                    {
+                        return new AddCustomerResponse {
+                            MESSAGE = "cmnd đã được sử dụng!",
+                            STATUSCODE = HttpStatusCode.BadRequest
+                        };
+                    }
                     Project.Models.Customer _customer_to_add = _mapper.Map<Project.Models.Customer>(command);
                     _customer_to_add.CREATEDDATE = DateTime.Now;
-                    _customer_to_add.PasswordHash = command.Password + "1234"; // thêm hashing function
+                    _customer_to_add.PasswordHash = _customerRepo.HashPassword(command.Password);
                     _customer_to_add.STATUS = "active";
                     _customer_to_add.CODE = "KH_" + String.Concat(Guid.NewGuid().ToString("N").Select(c => (char)(c + 17))).ToUpper().Substring(0, 4) + 
                                             String.Concat(Guid.NewGuid().ToString("N").Select(c => (char)(c + 17))).ToUpper().Substring(10, 4);

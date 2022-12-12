@@ -91,6 +91,9 @@ namespace ProjectBE.Migrations
                     b.Property<string>("STATUS")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("USERNAME")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("ID");
 
                     b.ToTable("Customers");

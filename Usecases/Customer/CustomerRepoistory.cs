@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Project.Data;
-namespace Project.Models
+namespace Project.UseCases.Customers
 {
     public class CustomerRepository
     {
@@ -8,18 +8,10 @@ namespace Project.Models
         {
 
         }
-
-        public void Login()
+        public string HashPassword(string Password)
         {
-
+            return Password + "1234";
         }
-
-        public void Register()
-        {
-
-        }
-
-     
-
+        
     }
 }

@@ -36,6 +36,7 @@ namespace ProjectBE.Migrations
                 {
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    USERNAME = table.Column<string>(type: "TEXT", nullable: true),
                     CODE = table.Column<string>(type: "TEXT", nullable: true),
                     NAME = table.Column<string>(type: "TEXT", nullable: true),
                     SEX = table.Column<int>(type: "INTEGER", nullable: false),

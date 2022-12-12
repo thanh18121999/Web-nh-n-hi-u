@@ -2,7 +2,9 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ProjectBE.Models;
 using MediatR;
-using Project.UseCases.Customer;
+using Project.UseCases.Customers;
+using Microsoft.AspNetCore.Authorization;
+
 namespace ProjectBE.Controllers;
 [Route("api/customer")]
 public class CustomerController : Controller
@@ -14,13 +16,22 @@ public class CustomerController : Controller
         _logger = logger;
         _mediator = mediator;
     }
+    [Authorize]
     [HttpPost("add")]
-        public async Task<IActionResult> AddCustomer([FromBody] AddCustomerCommand command, [FromServices] IMediator mediator)
-        {
-            //var token = HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
-            //command.Token = token;
-            var result = await mediator.Send(command);
-            return StatusCode((int)result.STATUSCODE, result);
-        }
+    public async Task<IActionResult> AddCustomer([FromBody] AddCustomerCommand command, [FromServices] IMediator mediator)
+    {
+        //var token = HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
+        //command.Token = token;
+        var result = await mediator.Send(command);
+        return StatusCode((int)result.STATUSCODE, result);
+    }
+
+    public async Task<IActionResult> LoginCustomer([FromBody] LoginCustomerCommand command, [FromServices] IMediator mediator)
+    {
+        //var token = HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
+        //command.Token = token;
+        var result = await mediator.Send(command);
+        return StatusCode((int)result.STATUSCODE, result);
+    }
     
 }

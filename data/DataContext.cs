@@ -23,6 +23,11 @@ namespace Project.Data
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Project.Models.Customer>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.Group>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.Course>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.Staff>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.JoinCourse>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.JoinGroup>().Property(f => f.ID).ValueGeneratedOnAdd();
         }
 
 

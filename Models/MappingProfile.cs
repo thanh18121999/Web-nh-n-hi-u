@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using System;
-using Project.UseCases.Customer;
+using Project.UseCases.Customers;
 using Project.Models.Dto;
 namespace Project.Models
 {

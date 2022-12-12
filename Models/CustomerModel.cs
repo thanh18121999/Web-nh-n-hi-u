@@ -5,6 +5,7 @@ namespace Project.Models
     {
         [Key] 
         public int ID { get; set; }
+        public string? USERNAME {get;set;}
         public string? CODE {get;set;}
         public string? NAME {get;set;}
         public int SEX {get;set;}

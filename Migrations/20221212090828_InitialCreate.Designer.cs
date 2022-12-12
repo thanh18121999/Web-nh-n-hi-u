@@ -11,7 +11,7 @@ using Project.Data;
 namespace ProjectBE.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221210192055_InitialCreate")]
+    [Migration("20221212090828_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -91,6 +91,9 @@ namespace ProjectBE.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("STATUS")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("USERNAME")
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");
