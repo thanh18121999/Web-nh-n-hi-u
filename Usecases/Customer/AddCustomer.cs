@@ -14,6 +14,7 @@ namespace Project.UseCases.Customers
         public string? MESSAGE {get;set;}
         public HttpStatusCode STATUSCODE {get;set;}
         public CustomerDto? RESPONSES {get;set;} 
+        public dynamic? ERROR {get;set;}
     }
     public class AddCustomerCommand : IRequest<AddCustomerResponse>
     {
@@ -56,40 +57,26 @@ namespace Project.UseCases.Customers
             using (var dbContextTransaction = _dbContext.Database.BeginTransaction())
             {
                 try {
-                    //HttpContextAccessor x = new HttpContextAccessor();
-                    //string? token = x.HttpContext?.Request.Headers["Authorization"].ToString().Split(" ")[1];
                     Console.WriteLine(_userAccessor.getID());
                     CustomerRepository _customerRepo = new CustomerRepository(_dbContext);
-                    Project.Models.Customer? _exist_customer_with_username = await _dbContext.Customers.FirstOrDefaultAsync(x => x.USERNAME == command.Username, cancellationToken);
-                    if (_exist_customer_with_username != null)
+
+                    bool _username_checked = _customerRepo.IsPropertyValueExist("USERNAME", command.Username);
+                    bool _phone_checked = _customerRepo.IsPropertyValueExist("PHONE", command.Username);
+                    bool _email_checked = _customerRepo.IsPropertyValueExist("EMAIL", command.Username);
+                    bool _identify_checked = _customerRepo.IsPropertyValueExist("IDENTIFY", command.Username);
+
+                    List<string> _existed_prop = new List<string> { _username_checked ? "Username đã được sử dụng!" : null , 
+                                                                    _phone_checked ? "SĐT đã được sử dụng!": null, 
+                                                                    _email_checked ? "Email đã được sử dụng!" : null,
+                                                                    _identify_checked ? "CMND đã được sử dụng!" : null
+                                                                    };
+                    _existed_prop.RemoveAll(s => s == null);
+                    if (_existed_prop.Count() > 0)
                     {
                         return new AddCustomerResponse {
-                            MESSAGE = "Username đã được sử dụng!",
-                            STATUSCODE = HttpStatusCode.BadRequest
-                        };
-                    }
-                    Project.Models.Customer? _exist_customer_with_phone = await _dbContext.Customers.FirstOrDefaultAsync(x => x.PHONE == command.Phone, cancellationToken);
-                    if (_exist_customer_with_phone != null)
-                    {
-                        return new AddCustomerResponse {
-                            MESSAGE = "SĐT đã được sử dụng!",
-                            STATUSCODE = HttpStatusCode.BadRequest
-                        };
-                    }
-                    Project.Models.Customer? _exist_customer_with_email = await _dbContext.Customers.FirstOrDefaultAsync(x => x.EMAIL == command.Email, cancellationToken);
-                    if (_exist_customer_with_phone != null)
-                    {
-                        return new AddCustomerResponse {
-                            MESSAGE = "Email đã được sử dụng!",
-                            STATUSCODE = HttpStatusCode.BadRequest
-                        };
-                    }
-                    Project.Models.Customer? _exist_customer_with_identity = await _dbContext.Customers.FirstOrDefaultAsync(x => x.IDENTIFY == command.Identify, cancellationToken);
-                    if (_exist_customer_with_identity != null)
-                    {
-                        return new AddCustomerResponse {
-                            MESSAGE = "cmnd đã được sử dụng!",
-                            STATUSCODE = HttpStatusCode.BadRequest
+                            MESSAGE = "Thất bại!",
+                            STATUSCODE = HttpStatusCode.BadRequest,
+                            ERROR = _existed_prop
                         };
                     }
                     Project.Models.Customer _customer_to_add = _mapper.Map<Project.Models.Customer>(command);
@@ -104,7 +91,7 @@ namespace Project.UseCases.Customers
                     return new AddCustomerResponse {
                         MESSAGE = "Tạo khách hàng thành công!",
                         STATUSCODE = HttpStatusCode.OK,
-                        RESPONSES = _mapper.Map<CustomerDto>(_customer_to_add)
+                        RESPONSES = _mapper.Map<CustomerDto>(_customer_to_add),
                     };
                 }
                 catch {
