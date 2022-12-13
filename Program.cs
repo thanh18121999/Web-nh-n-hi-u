@@ -9,6 +9,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Project.UseCases.Customers;
 using Project.UseCases.Tokens;
+using Project.RSA;
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -25,7 +27,7 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 //builder.Services.AddCustomRequestValidation();
-
+builder.Services.AddScoped<IRsaService, RsaService>();
 
 
 builder.Services.AddAuthentication("Bearer")
