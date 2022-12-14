@@ -17,15 +17,7 @@ namespace Project.UseCases.Customers
         {
             return HashPassword(Password) == pwHashed;
         }
-        public bool IsPropertyValueExist(string property, string value)
-        {
-            var _getted_value = _dbContext.Customers.Where(x => x.GetType().GetProperty(property).GetValue(x, null) == value ).FirstOrDefault();
-            if (_getted_value != null)
-            {
-                return true;
-            }
-            return false;
-        }
+
         
     }
 }

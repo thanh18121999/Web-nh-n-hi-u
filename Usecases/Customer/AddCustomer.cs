@@ -57,13 +57,12 @@ namespace Project.UseCases.Customers
             using (var dbContextTransaction = _dbContext.Database.BeginTransaction())
             {
                 try {
-                    Console.WriteLine(_userAccessor.getID());
                     CustomerRepository _customerRepo = new CustomerRepository(_dbContext);
 
-                    bool _username_checked = _customerRepo.IsPropertyValueExist("USERNAME", command.Username);
-                    bool _phone_checked = _customerRepo.IsPropertyValueExist("PHONE", command.Username);
-                    bool _email_checked = _customerRepo.IsPropertyValueExist("EMAIL", command.Username);
-                    bool _identify_checked = _customerRepo.IsPropertyValueExist("IDENTIFY", command.Username);
+                    bool _username_checked = _dbContext.Customers.Any(u => u.USERNAME == command.Username);
+                    bool _phone_checked = _dbContext.Customers.Any(u => u.PHONE == command.Phone);
+                    bool _email_checked = _dbContext.Customers.Any(u => u.EMAIL == command.Email);
+                    bool _identify_checked = _dbContext.Customers.Any(u => u.IDENTIFY == command.Identify);
 
                     List<string> _existed_prop = new List<string> { _username_checked ? "Username đã được sử dụng!" : null , 
                                                                     _phone_checked ? "SĐT đã được sử dụng!": null, 

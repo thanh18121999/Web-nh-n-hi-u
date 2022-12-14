@@ -306,8 +306,8 @@ namespace Project.RSA
 
         public RsaService()
         {
-            public_pem = @".\keys\public.key.pem";
-            string private_pem = @".\keys\private1024.key.pem";
+            public_pem = @".\keys\public-key.pem";
+            string private_pem = @".\keys\private-key.pem";
 
             _privateKey = GetPrivateKeyFromPemFile(private_pem);
             _publicKey = GetPublicKeyFromPemFile(public_pem);

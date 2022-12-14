@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectBE.Models;
 using MediatR;
 using Project.UseCases.Customers;
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 
 namespace ProjectBE.Controllers;
@@ -16,12 +17,12 @@ public class CustomerController : Controller
         _logger = logger;
         _mediator = mediator;
     }
-    [AuthorizeAttribute]
     [HttpPost("add")]
+    [AuthorizeAttribute]
+    [DecryptedAttribute]
     public async Task<IActionResult> AddCustomer([FromBody] AddCustomerCommand command, [FromServices] IMediator mediator)
     {
-        //var token = HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
-        //command.Token = token;
+        
         var result = await mediator.Send(command);
         return StatusCode((int)result.STATUSCODE, result);
     }
@@ -29,10 +30,9 @@ public class CustomerController : Controller
 
     public async Task<IActionResult> LoginCustomer([FromBody] LoginCustomerCommand command, [FromServices] IMediator mediator)
     {
-        //var token = HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
-        //command.Token = token;
         var result = await mediator.Send(command);
         return StatusCode((int)result.STATUSCODE, result);
     }
+
     
 }
