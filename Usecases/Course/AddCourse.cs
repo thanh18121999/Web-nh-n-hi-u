@@ -4,7 +4,7 @@ using FluentValidation;
 using System.Net;
 using Project.Data;
 using Project.Models.Dto;
-namespace Project.UseCases.Course
+namespace Project.UseCases.Courses
 {
     public class AddCourseResponse 
     {

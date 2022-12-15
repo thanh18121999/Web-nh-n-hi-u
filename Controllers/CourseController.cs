@@ -2,17 +2,17 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ProjectBE.Models;
 using MediatR;
-using Project.UseCases.Groups;
+using Project.UseCases.Courses;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 
 namespace ProjectBE.Controllers;
-[Route("api/group")]
-public class GroupController : Controller
+[Route("api/course")]
+public class CourseController : Controller
 {
-    private readonly ILogger<GroupController> _logger;
+    private readonly ILogger<CourseController> _logger;
     private readonly IMediator _mediator;
-    public GroupController(ILogger<GroupController> logger, IMediator mediator)
+    public CourseController(ILogger<CourseController> logger, IMediator mediator)
     {
         _logger = logger;
         _mediator = mediator;
@@ -20,22 +20,23 @@ public class GroupController : Controller
     [HttpPost("add")]
     [AuthorizeAttribute]
     [DecryptedAttribute] // Chỉ sử dụng attribute này cho những route cần Encrypt request!!
-    public async Task<IActionResult> AddGroup([FromBody] AddGroupCommand command, [FromServices] IMediator mediator)
+    public async Task<IActionResult> AddCourse([FromBody] AddCourseCommand command, [FromServices] IMediator mediator)
     {
         var result = await mediator.Send(command);
         return StatusCode((int)result.STATUSCODE, result);
     }
     [HttpPost("query")]
-    public async Task<IActionResult> GetListGroup([FromBody] GetGroupCommand command, [FromServices] IMediator mediator)
+    public async Task<IActionResult> GetListCourse([FromBody] GetCourseCommand command, [FromServices] IMediator mediator)
     {
         var result = await mediator.Send(command);
         return StatusCode((int)result.STATUSCODE, result);
     }
     [HttpPost("update")]
     [AuthorizeAttribute]
-    public async Task<IActionResult> UpdateGroup([FromBody] UpdateGroupCommand command, [FromServices] IMediator mediator)
+    public async Task<IActionResult> UpdateCourse([FromBody] UpdateCourseCommand command, [FromServices] IMediator mediator)
     {
         var result = await mediator.Send(command);
         return StatusCode((int)result.STATUSCODE, result);
     }
+    
 }

@@ -26,7 +26,6 @@ public class CustomerController : Controller
         return StatusCode((int)result.STATUSCODE, result);
     }
     [HttpPost("query")]
-    [AuthorizeAttribute]
     public async Task<IActionResult> GetListCustomer([FromBody] GetCustomerCommand command, [FromServices] IMediator mediator)
     {
         var result = await mediator.Send(command);
