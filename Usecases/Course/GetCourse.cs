@@ -7,64 +7,64 @@ using Project.Data;
 using Project.Models.Dto;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-namespace Project.UseCases.Customers
+namespace Project.UseCases.Courses
 {
-    public class GetCustomerResponse 
+    public class GetCourseResponse 
     {
         public string? MESSAGE {get;set;}
         public HttpStatusCode STATUSCODE {get;set;}
-        public IEnumerable<CustomerDto>? RESPONSES {get;set;} 
+        public IEnumerable<CourseDto>? RESPONSES {get;set;} 
     }
-    public class GetCustomerCommand : IRequest<GetCustomerResponse>
+    public class GetCourseCommand : IRequest<GetCourseResponse>
     {
         public string? Type {get;set;}
         public IEnumerable<string>? Data {get;set;}
     }
-    public class GetCustomerValidator : AbstractValidator<GetCustomerCommand>
+    public class GetCourseValidator : AbstractValidator<GetCourseCommand>
     {
-        public GetCustomerValidator()
+        public GetCourseValidator()
         {
             RuleFor(x => x.Type).NotNull().NotEmpty().WithMessage("Loại truy vấn không được trống");
             RuleFor(x => x.Data).NotNull().NotEmpty().WithMessage("Thông tin truy vấn không được trống");
         }
     }
-    public class GetCustomerHandler : IRequestHandler<GetCustomerCommand, GetCustomerResponse>
+    public class GetCourseHandler : IRequestHandler<GetCourseCommand, GetCourseResponse>
     {
         private readonly IMapper _mapper;
         private readonly DataContext _dbContext;
 
-        public GetCustomerHandler(DataContext dbContext,IMapper mapper)
+        public GetCourseHandler(DataContext dbContext,IMapper mapper)
         {
             _mapper = mapper;
             _dbContext = dbContext;
         }
-        public async Task<GetCustomerResponse> Handle(GetCustomerCommand command, CancellationToken cancellationToken)
+        public async Task<GetCourseResponse> Handle(GetCourseCommand command, CancellationToken cancellationToken)
         {
             
                 try {
-                    IEnumerable<Project.Models.Customer> list_customer_response = Enumerable.Empty<Project.Models.Customer>();
+                    IEnumerable<Project.Models.Course> list_Course_response = Enumerable.Empty<Project.Models.Course>();
 
                     switch (command.Type)
                     {
                         case "GET_BY_CODE":
-                            list_customer_response = await _dbContext.Customers.Where(x => command.Data.Contains(x.CODE)).ToListAsync(cancellationToken);
+                            list_Course_response = await _dbContext.Courses.Where(x => command.Data.Contains(x.CODE)).ToListAsync(cancellationToken);
                             break;
                         case "GET_BY_ID" :
-                            list_customer_response = await _dbContext.Customers.Where(x => command.Data.Contains(x.ID.ToString())).ToListAsync(cancellationToken);
+                            list_Course_response = await _dbContext.Courses.Where(x => command.Data.Contains(x.ID.ToString())).ToListAsync(cancellationToken);
                             break;
                         default:
-                            list_customer_response = await _dbContext.Customers.ToListAsync(cancellationToken);
+                            list_Course_response = await _dbContext.Courses.ToListAsync(cancellationToken);
                             break;
                     }
                     
-                    return new GetCustomerResponse {
+                    return new GetCourseResponse {
                         MESSAGE = "Truy vấn thành công!",
                         STATUSCODE = HttpStatusCode.OK,
-                        RESPONSES = _mapper.Map<IEnumerable<CustomerDto>>(list_customer_response)
+                        RESPONSES = _mapper.Map<IEnumerable<CourseDto>>(list_Course_response)
                     };
                 }
                 catch {
-                    return new GetCustomerResponse {
+                    return new GetCourseResponse {
                         MESSAGE = "Thất bại!",
                         STATUSCODE = HttpStatusCode.InternalServerError
                     };

@@ -48,6 +48,13 @@ builder.Services.AddAuthentication("Bearer")
             };
         });
 
+builder.Services.AddCors(o => o.AddPolicy("AllowAnyCorsPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddDbContext<DataContext>(options =>
@@ -67,7 +74,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseCors("AllowAnyCorsPolicy");
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

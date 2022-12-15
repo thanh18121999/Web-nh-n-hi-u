@@ -4,6 +4,7 @@ using Project.UseCases.Customers;
 using Project.Models.Dto;
 namespace Project.Models
 {
+    // ----- CUSTOMER ----
     public class AddCustomerMappingProfile : Profile
     {
         public AddCustomerMappingProfile()
@@ -23,6 +24,14 @@ namespace Project.Models
         public CustomerLoginMappingProfile()
         {
             CreateMap<Customer, CustomerLoginDto>();
+        }
+    }
+    // ----- COURSE ----
+    public class CourseMappingProfile : Profile
+    {
+        public CourseMappingProfile()
+        {
+            CreateMap<Course, CourseDto>();
         }
     }
    
