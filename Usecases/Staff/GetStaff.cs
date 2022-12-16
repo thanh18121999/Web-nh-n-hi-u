@@ -18,7 +18,7 @@ namespace Project.UseCases.Staffs
     public class GetStaffCommand : IRequest<GetStaffResponse>
     {
         public string? Type {get;set;}
-        public IEnumerable<string>? Data {get;set;}
+        public IEnumerable<string> Data {get;set;} = Enumerable.Empty<string>();
     }
     public class GetStaffValidator : AbstractValidator<GetStaffCommand>
     {

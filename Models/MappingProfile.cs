@@ -30,6 +30,20 @@ namespace Project.Models
             CreateMap<Customer, CustomerLoginDto>();
         }
     }
+    public class UpdateCustomerMappingProfile : Profile
+    {
+        public UpdateCustomerMappingProfile()
+        {
+            CreateMap<UpdateCustomerCommand, Customer>()
+            .ForMember(des => des.NAME, act => { act.Condition(src => src.Name != null); act.MapFrom(src => src.Name); })
+            .ForMember(des => des.SEX, act => { act.Condition(src => src.Sex != null); act.MapFrom(src => src.Sex); })
+            .ForMember(des => des.IDENTIFY, act => { act.Condition(src => src.Identify != null); act.MapFrom(src => src.Identify); })
+            .ForMember(des => des.EMAIL , act => { act.Condition(src => src.Email != null); act.MapFrom(src => src.Email); })
+            .ForMember(des => des.PHONE, act => { act.Condition(src => src.Phone != null); act.MapFrom(src => src.Phone); })
+            .ForMember(des => des.STATUS, act => { act.Condition(src => src.Status != null); act.MapFrom(src => src.Status); })
+            .ForAllOtherMembers(opts => opts.Ignore());
+        }
+    }
     // ----- COURSE ----
     public class CourseMappingProfile : Profile
     {

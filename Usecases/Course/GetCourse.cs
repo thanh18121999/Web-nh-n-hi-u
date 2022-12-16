@@ -18,7 +18,7 @@ namespace Project.UseCases.Courses
     public class GetCourseCommand : IRequest<GetCourseResponse>
     {
         public string? Type {get;set;}
-        public IEnumerable<string>? Data {get;set;}
+        public IEnumerable<string> Data {get;set;} = Enumerable.Empty<string>();
     }
     public class GetCourseValidator : AbstractValidator<GetCourseCommand>
     {

@@ -11,6 +11,7 @@ namespace Project.Data
     {
         public DataContext (DbContextOptions<DataContext> options): base(options)
         {
+           
         }
         public DbSet<Project.Models.Staff> Staffs { get; set; }
         public DbSet<Project.Models.Customer> Customers { get; set; }

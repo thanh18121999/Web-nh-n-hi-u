@@ -15,8 +15,10 @@ namespace Project.Models
         [DataType(DataType.Date)]
         public DateTime CREATEDDATE { get; set; }
         public string? STATUS { get; set; }
-        public string? Password {get;set;}
-        public string? PasswordHash {get;set;}
+        //public string? PASSWORD {get;set;}
+        public string? PASSWORDHASH {get;set;}
+        public string? PASSWORDSALT {get;set;}
+
 
     }
 }

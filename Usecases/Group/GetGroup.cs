@@ -18,7 +18,7 @@ namespace Project.UseCases.Groups
     public class GetGroupCommand : IRequest<GetGroupResponse>
     {
         public string? Type {get;set;}
-        public IEnumerable<string>? Data {get;set;}
+        public IEnumerable<string> Data {get;set;} = Enumerable.Empty<string>();
     }
     public class GetGroupValidator : AbstractValidator<GetGroupCommand>
     {

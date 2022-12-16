@@ -18,7 +18,6 @@ public class CustomerController : Controller
         _mediator = mediator;
     }
     [HttpPost("add")]
-    [AuthorizeAttribute]
     [DecryptedAttribute] // Chỉ sử dụng attribute này cho những route cần Encrypt request!!
     public async Task<IActionResult> AddCustomer([FromBody] AddCustomerCommand command, [FromServices] IMediator mediator)
     {
@@ -33,6 +32,7 @@ public class CustomerController : Controller
     }
     [HttpPost("update")]
     [AuthorizeAttribute]
+    [DecryptedAttribute]
     public async Task<IActionResult> UpdateCustomer([FromBody] UpdateCustomerCommand command, [FromServices] IMediator mediator)
     {
         var result = await mediator.Send(command);

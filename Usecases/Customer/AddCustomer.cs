@@ -64,12 +64,12 @@ namespace Project.UseCases.Customers
                     bool _email_checked = _dbContext.Customers.Any(u => u.EMAIL == command.Email);
                     bool _identify_checked = _dbContext.Customers.Any(u => u.IDENTIFY == command.Identify);
 
-                    List<string> _existed_prop = new List<string> { _username_checked ? "Username đã được sử dụng!" : null , 
-                                                                    _phone_checked ? "SĐT đã được sử dụng!": null, 
-                                                                    _email_checked ? "Email đã được sử dụng!" : null,
-                                                                    _identify_checked ? "CMND đã được sử dụng!" : null
+                    List<string> _existed_prop = new List<string> { _username_checked ? "Username đã được sử dụng!" : string.Empty , 
+                                                                    _phone_checked ? "SĐT đã được sử dụng!": string.Empty, 
+                                                                    _email_checked ? "Email đã được sử dụng!" : string.Empty,
+                                                                    _identify_checked ? "CMND đã được sử dụng!" : string.Empty
                                                                     };
-                    _existed_prop.RemoveAll(s => s == null);
+                    _existed_prop.RemoveAll(s => s == string.Empty);
                     if (_existed_prop.Count() > 0)
                     {
                         return new AddCustomerResponse {
@@ -80,7 +80,11 @@ namespace Project.UseCases.Customers
                     }
                     Project.Models.Customer _customer_to_add = _mapper.Map<Project.Models.Customer>(command);
                     _customer_to_add.CREATEDDATE = DateTime.Now;
-                    _customer_to_add.PasswordHash = _customerRepo.HashPassword(command.Password);
+                    if(!string.IsNullOrEmpty(command.Password)){
+                        _customer_to_add.PASSWORDHASH = _customerRepo.HashPassword(command.Password, out var salt);
+                        _customer_to_add.PASSWORDSALT = Convert.ToHexString(salt);
+
+                    }
                     _customer_to_add.STATUS = "active";
                     _customer_to_add.CODE = "KH_" + String.Concat(Guid.NewGuid().ToString("N").Select(c => (char)(c + 17))).ToUpper().Substring(0, 4) + 
                                             String.Concat(Guid.NewGuid().ToString("N").Select(c => (char)(c + 17))).ToUpper().Substring(10, 4);

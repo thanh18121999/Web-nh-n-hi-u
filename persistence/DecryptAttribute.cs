@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using Project.RSA;
 public class EncryptedData
 {
-    public string Encrypted {get;set;}
+    public string? Encrypted {get;set;}
 }
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class DecryptedAttribute :  Attribute, IAuthorizationFilter

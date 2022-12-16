@@ -18,7 +18,7 @@ namespace Project.UseCases.Customers
     public class UpdateCustomerCommand : IRequest<UpdateCustomerResponse>
     {
         public string? Name {get;set;}
-        public int Sex {get;set;}
+        public int? Sex {get;set;}
         public string? Identify {get;set;}
         public string? Email {get;set;}
         public string? Phone {get;set;}
@@ -30,7 +30,6 @@ namespace Project.UseCases.Customers
     {
         public UpdateCustomerValidator()
         {
-            // RuleFor(x => x.Name).NotNull().NotEmpty().WithMessage("Tên không được trống");
             // RuleFor(x => x.Identify).NotNull().NotEmpty().WithMessage("CMND không được trống");
             // RuleFor(x => x.Email).NotNull().NotEmpty().WithMessage("Email không được trống");
             // RuleFor(x => x.Phone).NotNull().NotEmpty().WithMessage("SĐT không được trống");
@@ -41,30 +40,44 @@ namespace Project.UseCases.Customers
     {
         private readonly IMapper _mapper;
         private readonly DataContext _dbContext;
-
-        public UpdateCustomerHandler(DataContext dbContext,IMapper mapper)
+        private readonly IUserAccessor _userAccessor;
+        public UpdateCustomerHandler(DataContext dbContext,IMapper mapper, IUserAccessor userAccessor)
         {
             _mapper = mapper;
             _dbContext = dbContext;
+            _userAccessor = userAccessor;
         }
         public async Task<UpdateCustomerResponse> Handle(UpdateCustomerCommand command, CancellationToken cancellationToken)
         {
             using (var dbContextTransaction = _dbContext.Database.BeginTransaction())
             {
                 try {
-                    Project.Models.Customer _customer_to_update = _mapper.Map<Project.Models.Customer>(command);
-                    if (!String.IsNullOrEmpty(command.Password))
+                    CustomerRepository _customerRepo = new CustomerRepository(_dbContext);
+                    Project.Models.Customer? _customer_to_update = await _dbContext.Customers.FirstOrDefaultAsync(x => x.ID.ToString() == _userAccessor.getID(), cancellationToken );
+                    
+                    if (_customer_to_update != null)
                     {
-                        _customer_to_update.PasswordHash = command.Password + "1234"; // hash function
+                        _mapper.Map<UpdateCustomerCommand,Project.Models.Customer>(command,_customer_to_update);
+                        if (!String.IsNullOrEmpty(command.Password))
+                        {
+                            _customer_to_update.PASSWORDHASH = _customerRepo.HashPassword(command.Password, out var salt); 
+                            _customer_to_update.PASSWORDSALT = Convert.ToHexString(salt);
+                        }
+                        _dbContext.Customers.Update(_customer_to_update);
+                        await _dbContext.SaveChangesAsync(cancellationToken);
+                        dbContextTransaction.Commit();
+                        return new UpdateCustomerResponse {
+                            MESSAGE = "Cập nhật thành công!",
+                            STATUSCODE = HttpStatusCode.OK,
+                            RESPONSES = _mapper.Map<CustomerDto>(_customer_to_update)
+                        };
                     }
-                    _dbContext.Customers.Update(_customer_to_update);
-                    await _dbContext.SaveChangesAsync(cancellationToken);
-                    dbContextTransaction.Commit();
-                    return new UpdateCustomerResponse {
-                        MESSAGE = "Cập nhật thành công!",
-                        STATUSCODE = HttpStatusCode.OK,
-                        RESPONSES = _mapper.Map<CustomerDto>(_customer_to_update)
-                    };
+                    else {
+                        return new UpdateCustomerResponse {
+                            MESSAGE = "Unknown user!",
+                            STATUSCODE = HttpStatusCode.BadRequest
+                        };
+                    }
                 }
                 catch {
                     dbContextTransaction.Rollback();

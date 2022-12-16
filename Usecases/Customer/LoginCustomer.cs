@@ -44,6 +44,7 @@ namespace Project.UseCases.Customers
         {
             
                 try {
+                    CustomerRepository _customerRepo = new CustomerRepository(_dbContext);
                     Project.Models.Customer? _customer_loging = await _dbContext.Customers.FirstOrDefaultAsync(x => x.USERNAME == command.Username, cancellationToken);
                     if (_customer_loging == null)
                     {
@@ -52,7 +53,7 @@ namespace Project.UseCases.Customers
                             STATUSCODE = HttpStatusCode.OK,
                         };
                     }
-                    else if (_customer_loging.Password != command.Password )
+                    else if (! _customerRepo.ComparePassword(command.Password, _customer_loging.PASSWORDHASH, _customer_loging.PASSWORDSALT))
                     {
                         return new LoginCustomerResponse {
                             MESSAGE = "Password không đúng!",

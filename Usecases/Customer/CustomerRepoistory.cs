@@ -1,23 +1,48 @@
 using System.ComponentModel.DataAnnotations;
 using Project.Data;
+using System.Security.Cryptography;
+using System.Text;
 namespace Project.UseCases.Customers
 {
     public class CustomerRepository : ICustomerRepository
     {
         private readonly DataContext _dbContext;
+        const int keySize = 64;
+        const int iterations = 350000;
+        HashAlgorithmName hashAlgorithm = HashAlgorithmName.SHA512;
         public CustomerRepository(DataContext dbContext)
         {
             _dbContext = dbContext;
         }
-        public string HashPassword(string Password)
+        public string HashPassword(string Password, out byte[] salt)
         {
-            return Password + "1234";
+            salt = RandomNumberGenerator.GetBytes(keySize);
+            var hash = Rfc2898DeriveBytes.Pbkdf2(
+                Encoding.UTF8.GetBytes(Password),
+                salt,
+                iterations,
+                hashAlgorithm,
+                keySize);
+            return Convert.ToHexString(hash);
         }
-        public bool ComparePassword(string Password, string pwHashed)
+        private byte[] StringToByteArray(string hex)
         {
-            return HashPassword(Password) == pwHashed;
+            return Enumerable.Range(0, hex.Length)
+                            .Where(x => x % 2 == 0)
+                            .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+                            .ToArray();
         }
-
-        
+        public bool ComparePassword(string password, string hash, string _salt)
+        {
+            try 
+            {
+                byte[] salt = StringToByteArray(_salt);
+                var hashToCompare = Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, hashAlgorithm, keySize);
+                return hashToCompare.SequenceEqual(Convert.FromHexString(hash));
+            }
+            catch {
+                return false;
+            }
+        }
     }
 }

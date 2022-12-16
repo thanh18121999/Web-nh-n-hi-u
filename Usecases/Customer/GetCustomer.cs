@@ -18,7 +18,7 @@ namespace Project.UseCases.Customers
     public class GetCustomerCommand : IRequest<GetCustomerResponse>
     {
         public string? Type {get;set;}
-        public IEnumerable<string>? Data {get;set;}
+        public IEnumerable<string> Data {get;set;} =  Enumerable.Empty<string>();
     }
     public class GetCustomerValidator : AbstractValidator<GetCustomerCommand>
     {

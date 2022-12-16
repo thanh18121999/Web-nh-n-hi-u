@@ -23,10 +23,7 @@ namespace Project.RSA
 
             _privateKey = GetPrivateKeyFromPemFile(private_pem);
             _publicKey = GetPublicKeyFromPemFile(public_pem);
-
-
         }
-
         public string getPublicKey()
         {
             return File.ReadAllText(public_pem);
@@ -37,13 +34,11 @@ namespace Project.RSA
             var encryptedBytes = _publicKey.Encrypt(Encoding.UTF8.GetBytes(text), false);
             return Convert.ToBase64String(encryptedBytes);
         }
-
         public string Decrypt(string encrypted)
         {
             var decryptedBytes = _privateKey.Decrypt(Convert.FromBase64String(encrypted), false);
             return Encoding.UTF8.GetString(decryptedBytes, 0, decryptedBytes.Length);
         }
-
         private RSACryptoServiceProvider GetPrivateKeyFromPemFile(string filePath)
         {
             using (TextReader privateKeyTextReader = new StringReader(File.ReadAllText(filePath)))
@@ -56,7 +51,6 @@ namespace Project.RSA
                 return csp;
             }
         }
-
         private RSACryptoServiceProvider GetPublicKeyFromPemFile(String filePath)
         {
             using (TextReader publicKeyTextReader = new StringReader(File.ReadAllText(filePath)))
