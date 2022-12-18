@@ -17,6 +17,7 @@ namespace Project.UseCases.Courses
     }
     public class UpdateCourseCommand : IRequest<UpdateCourseResponse>
     {
+        public int? ID {get;set;}
         public string? Name {get;set;}
         public string? Description {get;set;}
         public DateTime StartDate { get; set; }
@@ -29,7 +30,7 @@ namespace Project.UseCases.Courses
     {
         public UpdateCourseValidator()
         {
-            // RuleFor(x => x.Name).NotNull().NotEmpty().WithMessage("Tên không được trống");
+            RuleFor(x => x.ID).NotNull().NotEmpty().WithMessage("ID không được trống");
             // RuleFor(x => x.Identify).NotNull().NotEmpty().WithMessage("CMND không được trống");
             // RuleFor(x => x.Email).NotNull().NotEmpty().WithMessage("Email không được trống");
             // RuleFor(x => x.Phone).NotNull().NotEmpty().WithMessage("SĐT không được trống");
@@ -51,15 +52,28 @@ namespace Project.UseCases.Courses
             using (var dbContextTransaction = _dbContext.Database.BeginTransaction())
             {
                 try {
-                    Project.Models.Course _Course_to_update = _mapper.Map<Project.Models.Course>(command);
-                    _dbContext.Courses.Update(_Course_to_update);
-                    await _dbContext.SaveChangesAsync(cancellationToken);
-                    dbContextTransaction.Commit();
-                    return new UpdateCourseResponse {
-                        MESSAGE = "Cập nhật khóa học thành công!",
-                        STATUSCODE = HttpStatusCode.OK,
-                        RESPONSES = _mapper.Map<CourseDto>(_Course_to_update)
-                    };
+
+                    Project.Models.Course? _Course_to_update = await _dbContext.Courses.FirstOrDefaultAsync(x => x.ID == command.ID, cancellationToken);
+                    if(_Course_to_update != null)
+                    {
+
+                    
+                        _mapper.Map<UpdateCourseCommand,Project.Models.Course>(command, _Course_to_update);
+                        _dbContext.Courses.Update(_Course_to_update);
+                        await _dbContext.SaveChangesAsync(cancellationToken);
+                        dbContextTransaction.Commit();
+                        return new UpdateCourseResponse {
+                            MESSAGE = "Cập nhật khóa học thành công!",
+                            STATUSCODE = HttpStatusCode.OK,
+                            RESPONSES = _mapper.Map<CourseDto>(_Course_to_update)
+                        };
+                    }
+                    else {
+                        return new UpdateCourseResponse {
+                            MESSAGE = "Cập nhật khóa học thất bại!",
+                            STATUSCODE = HttpStatusCode.BadRequest
+                        };
+                    }
                 }
                 catch {
                     dbContextTransaction.Rollback();

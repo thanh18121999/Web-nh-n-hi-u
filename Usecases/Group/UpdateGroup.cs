@@ -17,6 +17,7 @@ namespace Project.UseCases.Groups
     }
     public class UpdateGroupCommand : IRequest<UpdateGroupResponse>
     {
+        public int? ID {get;set;}
         public string? Name {get;set;}
         public string? Description {get;set;}
         public string? Status { get; set; }
@@ -25,6 +26,7 @@ namespace Project.UseCases.Groups
     {
         public UpdateGroupValidator()
         {
+            RuleFor(x => x.ID).NotNull().NotEmpty().WithMessage("ID không được trống");
         }
     }
     public class UpdateGroupHandler : IRequestHandler<UpdateGroupCommand, UpdateGroupResponse>
@@ -42,15 +44,25 @@ namespace Project.UseCases.Groups
             using (var dbContextTransaction = _dbContext.Database.BeginTransaction())
             {
                 try {
-                    Project.Models.Group _Group_to_update = _mapper.Map<Project.Models.Group>(command);
-                    _dbContext.Groups.Update(_Group_to_update);
-                    await _dbContext.SaveChangesAsync(cancellationToken);
-                    dbContextTransaction.Commit();
-                    return new UpdateGroupResponse {
-                        MESSAGE = "Cập nhật thành công!",
-                        STATUSCODE = HttpStatusCode.OK,
-                        RESPONSES = _mapper.Map<GroupDto>(_Group_to_update)
-                    };
+                    Project.Models.Group? _Group_to_update = await _dbContext.Groups.FirstOrDefaultAsync(x => x.ID == command.ID, cancellationToken);
+                    if (_Group_to_update != null)
+                   { 
+                        _mapper.Map<UpdateGroupCommand,Project.Models.Group>(command, _Group_to_update);
+                        _dbContext.Groups.Update(_Group_to_update);
+                        await _dbContext.SaveChangesAsync(cancellationToken);
+                        dbContextTransaction.Commit();
+                        return new UpdateGroupResponse {
+                            MESSAGE = "Cập nhật thành công!",
+                            STATUSCODE = HttpStatusCode.OK,
+                            RESPONSES = _mapper.Map<GroupDto>(_Group_to_update)
+                        };
+                    }
+                    else {
+                         return new UpdateGroupResponse {
+                            MESSAGE = "Cập nhật thất bại!",
+                            STATUSCODE = HttpStatusCode.BadRequest
+                        };
+                    }
                 }
                 catch {
                     dbContextTransaction.Rollback();

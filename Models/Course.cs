@@ -14,6 +14,6 @@ namespace Project.Models
         public DateTime ENDDATE { get; set; }
         public string? CREATEDUSER { get; set; }
         public string? STATUS { get; set; }
-        public string? Type {get;set;}
+        public string? TYPE {get;set;}
     }
 }
