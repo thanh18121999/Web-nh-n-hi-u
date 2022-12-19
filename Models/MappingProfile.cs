@@ -89,6 +89,13 @@ namespace Project.Models
             CreateMap<AddStaffCommand,Staff>();
         }
     }
+    public class StaffLoginMappingProfile : Profile
+    {
+        public StaffLoginMappingProfile()
+        {
+            CreateMap<Staff, StaffLoginDto>();
+        }
+    }
     public class UpdateStaffMappingProfile : Profile
     {
         public UpdateStaffMappingProfile()

@@ -56,11 +56,21 @@ namespace Project.UseCases.Courses
                             list_Course_response = await _dbContext.Courses.ToListAsync(cancellationToken);
                             break;
                     }
-                    
+                    IEnumerable<CourseDto> _courseDto_response = _mapper.Map<IEnumerable<CourseDto>>(list_Course_response);
+                    foreach (CourseDto _res in _courseDto_response)
+                    {
+                        IEnumerable<Project.Models.CourseFeedBack> list_feedbacks = await _dbContext.CourseFeedBacks
+                                        .Where(x =>  x.IDCOURSE == _res.ID )
+                                        .Join(_dbContext.Courses,
+                                            feedback => feedback.IDCOURSE,
+                                            Course => Course.ID,
+                                            (Feedback, Course) => new { Feedbacks = Feedback, Courses = Course })
+                                            .Select(FeedbackOfCourse => FeedbackOfCourse.Feedbacks).ToListAsync(cancellationToken);
+                        _res.Feedbacks =  list_feedbacks;
+                    }
                     return new GetCourseResponse {
                         MESSAGE = "Truy vấn thành công!",
                         STATUSCODE = HttpStatusCode.OK,
-                        RESPONSES = _mapper.Map<IEnumerable<CourseDto>>(list_Course_response)
                     };
                 }
                 catch {

@@ -63,7 +63,7 @@ namespace Project.UseCases.Staffs
                         await _dbContext.SaveChangesAsync(cancellationToken);
                         dbContextTransaction.Commit();
                         return new UpdateStaffResponse {
-                            MESSAGE = "Tạo thành công!",
+                            MESSAGE = "Cập nhật thành công!",
                             STATUSCODE = HttpStatusCode.OK,
                             RESPONSES = _mapper.Map<StaffDto>(_Staff_to_update)
                         };
@@ -78,7 +78,7 @@ namespace Project.UseCases.Staffs
                 catch {
                     dbContextTransaction.Rollback();
                     return new UpdateStaffResponse {
-                        MESSAGE = "Tạo khách hàng thất bại!",
+                        MESSAGE = "Cập nhật thất bại!",
                         STATUSCODE = HttpStatusCode.InternalServerError
                     };
                 }

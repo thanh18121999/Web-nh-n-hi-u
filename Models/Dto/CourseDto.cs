@@ -14,5 +14,6 @@ namespace Project.Models.Dto
         public string? CREATEDUSER { get; set; }
         public string? STATUS { get; set; }
         public string? Type {get;set;}
+        public IEnumerable<CourseFeedBack>? Feedbacks {get;set;} 
     }
 }

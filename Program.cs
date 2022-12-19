@@ -8,6 +8,7 @@ using System.Reflection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Project.UseCases.Customers;
+using Project.UseCases;
 using Project.UseCases.Tokens;
 using Project.RSA;
 
@@ -17,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IUserAccessor, UserAccessor>();
 builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
+builder.Services.AddTransient<IGeneralRepository, GeneralRepository>();
 builder.Services.AddTransient<ITokenRepository, TokenRepository>();
 // Add services to the container.
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());

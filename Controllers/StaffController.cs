@@ -18,14 +18,15 @@ public class StaffController : Controller
         _mediator = mediator;
     }
     [HttpPost("add")]
-    [AuthorizeAttribute]
     [DecryptedAttribute] // Chỉ sử dụng attribute này cho những route cần Encrypt request!!
+    [AuthorizeAttribute]
     public async Task<IActionResult> AddStaff([FromBody] AddStaffCommand command, [FromServices] IMediator mediator)
     {
         var result = await mediator.Send(command);
         return StatusCode((int)result.STATUSCODE, result);
     }
     [HttpPost("query")]
+    [AuthorizeAttribute]
     public async Task<IActionResult> GetListStaff([FromBody] GetStaffCommand command, [FromServices] IMediator mediator)
     {
         var result = await mediator.Send(command);
@@ -33,16 +34,17 @@ public class StaffController : Controller
     }
     [HttpPost("update")]
     [AuthorizeAttribute]
+    [DecryptedAttribute]
     public async Task<IActionResult> UpdateStaff([FromBody] UpdateStaffCommand command, [FromServices] IMediator mediator)
     {
         var result = await mediator.Send(command);
         return StatusCode((int)result.STATUSCODE, result);
     }
-    // [HttpPost("login")]
-    // [DecryptedAttribute]
-    // public async Task<IActionResult> LoginStaff([FromBody] LoginStaffCommand command, [FromServices] IMediator mediator)
-    // {
-    //     var result = await mediator.Send(command);
-    //     return StatusCode((int)result.STATUSCODE, result);
-    // }
+    [HttpPost("login")]
+    [DecryptedAttribute]
+    public async Task<IActionResult> LoginStaff([FromBody] LoginStaffCommand command, [FromServices] IMediator mediator)
+    {
+        var result = await mediator.Send(command);
+        return StatusCode((int)result.STATUSCODE, result);
+    }
 }

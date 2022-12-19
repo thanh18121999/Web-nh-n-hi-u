@@ -19,6 +19,8 @@ namespace Project.Data
         public DbSet<Project.Models.Group> Groups { get; set; }
         public DbSet<Project.Models.JoinCourse> JoinCourses { get; set; }
         public DbSet<Project.Models.JoinGroup> JoinGroups { get; set; }
+        public DbSet<Project.Models.CourseFeedBack> CourseFeedBacks { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,6 +31,7 @@ namespace Project.Data
             modelBuilder.Entity<Project.Models.Staff>().Property(f => f.ID).ValueGeneratedOnAdd();
             modelBuilder.Entity<Project.Models.JoinCourse>().Property(f => f.ID).ValueGeneratedOnAdd();
             modelBuilder.Entity<Project.Models.JoinGroup>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.CourseFeedBack>().Property(f => f.ID).ValueGeneratedOnAdd();
         }
 
 

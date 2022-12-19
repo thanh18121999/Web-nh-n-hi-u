@@ -56,11 +56,22 @@ namespace Project.UseCases.Groups
                             list_Group_response = await _dbContext.Groups.ToListAsync(cancellationToken);
                             break;
                     }
-                    
+                    IEnumerable<GroupDto> _get_groups_response =  _mapper.Map<IEnumerable<GroupDto>>(list_Group_response);
+                    foreach (GroupDto _get_group_response in _get_groups_response )
+                    {
+                        
+                        IEnumerable<Project.Models.Staff> list_staffs = await _dbContext.JoinGroups
+                                            .Where(x =>  x.IDGROUP == _get_group_response.ID)
+                                            .Join(_dbContext.Staffs,
+                                                JoinGroup => JoinGroup.IDMEMBER,
+                                                Staff => Staff.ID,
+                                                (JoinGroup, Staff) => new { JoinGroups = JoinGroup, Staffs = Staff })
+                                            .Select(StaffJoinGroup => StaffJoinGroup.Staffs).ToListAsync(cancellationToken);
+                        _get_group_response.ListStaff =  _mapper.Map<IEnumerable<StaffDto>>(list_staffs);
+                    }
                     return new GetGroupResponse {
                         MESSAGE = "Truy vấn thành công!",
                         STATUSCODE = HttpStatusCode.OK,
-                        RESPONSES = _mapper.Map<IEnumerable<GroupDto>>(list_Group_response)
                     };
                 }
                 catch {

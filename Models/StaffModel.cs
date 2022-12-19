@@ -6,6 +6,7 @@ namespace Project.Models
     {
         public int ID { get; set; }
         public string? CODE {get;set;}
+        public string? USERNAME {get;set;}
         public string? NAME {get;set;}
         public int SEX {get;set;}
         public string? IDENTIFY {get;set;}
@@ -17,7 +18,7 @@ namespace Project.Models
         public DateTime STARTWORKDATE { get; set; }
         public string? STATUS { get; set; }
         public int LEVEL { get; set; }
-        public string? Password {get;set;}
-        public string? PasswordHash {get;set;}
+        public string? PASSWORDHASH {get;set;}
+        public string? PASSWORDSALT {get;set;}
     }
 }

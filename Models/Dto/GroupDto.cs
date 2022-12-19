@@ -11,5 +11,7 @@ namespace Project.Models.Dto
         public DateTime CREATEDDATE { get; set; }
         public string? CREATEDUSER { get; set; }
         public string? STATUS { get; set; }
+
+        public IEnumerable<StaffDto>? ListStaff {get;set;} 
     }
 }

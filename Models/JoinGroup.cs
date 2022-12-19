@@ -5,7 +5,7 @@ namespace Project.Models
     public class JoinGroup
     {
         public int ID { get; set; }
-        public string? IDCOURSE {get;set;}
-        public string? IDMEMBER {get;set;}
+        public int IDGROUP {get;set;}
+        public int? IDMEMBER {get;set;}
     }
 }

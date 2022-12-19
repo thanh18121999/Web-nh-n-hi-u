@@ -20,7 +20,7 @@ namespace Project.UseCases.Customers
     {
         public string? Username {get;set;}
         public string? Name {get;set;}
-        public int Sex {get;set;}
+        public int? Sex {get;set;}
         public string? Identify {get;set;}
         public string? Email {get;set;}
         public string? Phone {get;set;}
@@ -32,6 +32,7 @@ namespace Project.UseCases.Customers
         {
             RuleFor(x => x.Username).NotNull().NotEmpty().WithMessage("Username không được trống");
             RuleFor(x => x.Name).NotNull().NotEmpty().WithMessage("Tên không được trống");
+            RuleFor(x => x.Sex).NotNull().NotEmpty().WithMessage("Giới tính không được trống");
             RuleFor(x => x.Identify).NotNull().NotEmpty().WithMessage("CMND không được trống");
             RuleFor(x => x.Email).NotNull().NotEmpty().WithMessage("Email không được trống");
             RuleFor(x => x.Phone).NotNull().NotEmpty().WithMessage("SĐT không được trống");
