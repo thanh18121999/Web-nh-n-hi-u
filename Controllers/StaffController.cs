@@ -47,4 +47,12 @@ public class StaffController : Controller
         var result = await mediator.Send(command);
         return StatusCode((int)result.STATUSCODE, result);
     }
+    [HttpPost("changepassword")]
+    [AuthorizeAttribute]
+    [DecryptedAttribute]
+    public async Task<IActionResult> ChangePasswordStaff([FromBody] ChangePasswordStaffCommand command, [FromServices] IMediator mediator)
+    {
+        var result = await mediator.Send(command);
+        return StatusCode((int)result.STATUSCODE, result);
+    }
 }

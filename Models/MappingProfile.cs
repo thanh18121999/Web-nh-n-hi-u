@@ -4,7 +4,7 @@ using Project.UseCases.Customers;
 using Project.UseCases.Courses;
 using Project.UseCases.Staffs;
 using Project.UseCases.Groups;
-
+using Project.UseCases.CourseDocuments;
 using Project.Models.Dto;
 namespace Project.Models
 {
@@ -137,6 +137,15 @@ namespace Project.Models
             .ForMember(des => des.DESCRIPTION, act => { act.Condition(src => src.Description != null); act.MapFrom(src => src.Description); })
             .ForMember(des => des.STATUS, act => { act.Condition(src => src.Status != null); act.MapFrom(src => src.Status); })
             .ForAllOtherMembers(opts => opts.Ignore());
+        }
+    }
+
+    // COURSE DOCUMENT
+    public class UploadCourseDocumentMappingProfile : Profile
+    {
+        public UploadCourseDocumentMappingProfile()
+        {
+            CreateMap<UploadCourseDocumentCommand, CourseDocument>();
         }
     }
 

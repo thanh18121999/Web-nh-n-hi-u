@@ -46,4 +46,12 @@ public class CustomerController : Controller
         var result = await mediator.Send(command);
         return StatusCode((int)result.STATUSCODE, result);
     }
+    [HttpPost("changepassword")]
+    [AuthorizeAttribute]
+    [DecryptedAttribute]
+    public async Task<IActionResult> ChangePasswordCustomer([FromBody] ChangePasswordCustomerCommand command, [FromServices] IMediator mediator)
+    {
+        var result = await mediator.Send(command);
+        return StatusCode((int)result.STATUSCODE, result);
+    }
 }

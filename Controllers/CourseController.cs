@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectBE.Models;
 using MediatR;
 using Project.UseCases.Courses;
+using Project.UseCases.CourseDocuments;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 
@@ -38,5 +39,10 @@ public class CourseController : Controller
         var result = await mediator.Send(command);
         return StatusCode((int)result.STATUSCODE, result);
     }
-    
+    [HttpPost("upload-document")]
+    public async Task<IActionResult> UploadDocument([FromBody] UploadCourseDocumentCommand command, [FromServices] IMediator mediator)
+    {
+        var result = await mediator.Send(command);
+        return StatusCode((int)result.STATUSCODE, result);
+    }
 }
