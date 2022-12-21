@@ -149,5 +149,13 @@ namespace Project.Models
         }
     }
 
+    public class CourseDocumentMappingProfile : Profile
+    {
+        public CourseDocumentMappingProfile()
+        {
+            CreateMap<CourseDocument, CourseDocumentDto>();
+        }
+    }
+
    
 }

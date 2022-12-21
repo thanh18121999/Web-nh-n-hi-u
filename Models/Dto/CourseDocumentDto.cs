@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Project.Models
+namespace Project.Models.Dto
 {
-    public class CourseDocument
+    public class CourseDocumentDto
     {
         public int ID { get; set; }
         public int IDCOURSE {get;set;}
@@ -12,7 +12,6 @@ namespace Project.Models
         [DataType(DataType.Date)]
         public DateTime CREATEDDATE { get; set; }
         public int? CREATEDUSER { get; set; }
-        public string? DOCUMENT {get;set;} 
-        public string? FILETYPE {get;set;}
+        public string? DOWNLOADLINK {get;set;}
     }
 }

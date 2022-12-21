@@ -46,18 +46,16 @@ namespace Project.UseCases.CourseDocuments
         private readonly IUserAccessor _userAccessor;
         private string _absolutePath ;
         private  IWebHostEnvironment _webHostEnvironment;
-        //private readonly CourseFeedBackRepository _CourseFeedBackRepo;
 
         public UploadCourseDocumentHandler(DataContext dbContext,IMapper mapper,IUserAccessor userAccessor, IWebHostEnvironment webHostEnvironment)
         {
             _mapper = mapper;
             _dbContext = dbContext;
             _userAccessor = userAccessor;
-            //_absolutePath = @"Document";
             _webHostEnvironment = webHostEnvironment;
 
             var webRootPath = _webHostEnvironment. WebRootPath;
-            _absolutePath = Path.Combine(webRootPath, @"Document");
+            _absolutePath = Path.Combine(webRootPath, @"Document/course");
             if (! Directory. Exists(_absolutePath))
             {
                 Directory.CreateDirectory(_absolutePath);
@@ -77,17 +75,19 @@ namespace Project.UseCases.CourseDocuments
                         };
                     }
                     Project.Models.CourseDocument _CourseDocument_to_add = _mapper.Map<Project.Models.CourseDocument>(command);
-                    _CourseDocument_to_add.CREATEDUSER = 3 ;//Int32.Parse(_userAccessor.getID());
+                    _CourseDocument_to_add.CREATEDUSER = 3;//Int32.Parse(_userAccessor.getID());
                     _CourseDocument_to_add.CREATEDDATE = DateTime.Now;
-
+                    _CourseDocument_to_add.CODE = "COURSE_" + _course_toAddDocument.ID.ToString() + "_" + String.Concat(Guid.NewGuid().ToString("N").Select(c => (char)(c + 17))).ToUpper().Substring(0, 4) + 
+                                            String.Concat(Guid.NewGuid().ToString("N").Select(c => (char)(c + 17))).ToUpper().Substring(10, 4);
 
                     string doc = command.Document;
-                    string mystr = doc.Replace("base64,",string.Empty);    
-                    var bytes = Convert.FromBase64String(mystr.Split(";")[1]);
+                    string mystr = doc.Replace("base64,",string.Empty);    // remove dong nay
+                    var bytes = Convert.FromBase64String(mystr.Split(";")[1]); // edit dong nay
                     var contents = new StreamContent(new MemoryStream(bytes));
-                    var _storePath = "/" + _course_toAddDocument.ToString() + "/";
-                    var groupPath = Path.Combine(_absolutePath, _storePath);
-                    if (! Directory. Exists(groupPath))
+                    var _storePath = "/" + _course_toAddDocument.ID.ToString();
+                    var webRootPath = _webHostEnvironment.WebRootPath;
+                    var groupPath = Path.Combine(webRootPath, _absolutePath + _storePath);
+                    if (! Directory.Exists(groupPath))
                     {
                         try
                         {
@@ -101,31 +101,27 @@ namespace Project.UseCases.CourseDocuments
                             };
                         }
                     }
-
                     try
                     {
-                        // string doc = command.Document;
-                        // string mystr = fileContent.Replace("base64,",string.Empty);
-                        // var filePath = Path.Combine(groupPath, command.Name);
-                        // var testb = Convert.FromBase64String(command.Document);
-                        //  System.IO.File.WriteAllBytes(filePath, testb);
-                        
-
-                        //fileNames. Add(filePath);
+                        //string extension_file = command.Name.Split(".")[1];
+                        using (FileStream stream = new FileStream(Path.Combine(webRootPath,groupPath +"/"+  command.Name), FileMode.Create, FileAccess.Write))
+                        {
+                            stream.Write(bytes, 0, bytes.Length);
+                        }
                     }
-                    catch (Exception e)
+                    catch
                     {
-                        //_logger.LogError($ @" Copy file [{fileName}] failed: {e.Message}. " );
+                        dbContextTransaction.Rollback();
+                        return new UploadCourseDocumentResponse {
+                            MESSAGE = "Upload file thất bại!",
+                            STATUSCODE = HttpStatusCode.InternalServerError
+                        };
                     }
-
-                                    
-
-
                     await _dbContext.AddAsync(_CourseDocument_to_add, cancellationToken);
                     await _dbContext.SaveChangesAsync(cancellationToken);
                     dbContextTransaction.Commit();
                     return new UploadCourseDocumentResponse {
-                        MESSAGE = "Tạo feedback thành công!",
+                        MESSAGE = "Upload File thành công!",
                         STATUSCODE = HttpStatusCode.OK,
                         //RESPONSES = _CourseFeedBack_to_add
                     };

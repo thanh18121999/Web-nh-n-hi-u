@@ -4,19 +4,25 @@ using ProjectBE.Models;
 using MediatR;
 using Project.UseCases.Courses;
 using Project.UseCases.CourseDocuments;
-using System.Text;
-using Microsoft.AspNetCore.Authorization;
-
+using Microsoft.EntityFrameworkCore;
+using Project.Data;
+using Project.UseCases;
 namespace ProjectBE.Controllers;
 [Route("api/course")]
 public class CourseController : Controller
 {
     private readonly ILogger<CourseController> _logger;
     private readonly IMediator _mediator;
-    public CourseController(ILogger<CourseController> logger, IMediator mediator)
+    private readonly string _documentPath = @"Document/course"; 
+    private  IWebHostEnvironment _webHostEnvironment;
+    private DataContext _dbContext ;
+
+    public CourseController(ILogger<CourseController> logger,DataContext gen , IMediator mediator, IWebHostEnvironment webHostEnvironment)
     {
         _logger = logger;
         _mediator = mediator;
+        _webHostEnvironment = webHostEnvironment;
+        _dbContext = gen;
     }
     [HttpPost("add")]
     [AuthorizeAttribute]
@@ -45,4 +51,29 @@ public class CourseController : Controller
         var result = await mediator.Send(command);
         return StatusCode((int)result.STATUSCODE, result);
     }
+
+    [HttpGet("download-document/{IDCourse}/{Code}")]
+    public async Task<IActionResult> DownloadDocument(int IDCourse, string Code)
+    {
+        Project.Models.CourseDocument? c = await _dbContext.CourseDocuments.FirstOrDefaultAsync(x => x.CODE == Code, new CancellationToken());
+        if (c == null) {
+            return StatusCode((int)400, new {
+                STATUSCODE = 400,
+                MESSAGE = "Không tìm thấy File yêu cầu"
+            });
+        }
+        try {
+            var webRootPath = _webHostEnvironment.WebRootPath;
+            string filePath = Path.Combine(webRootPath, _documentPath + "/" + IDCourse.ToString() + "/"  + c.NAME);
+            return PhysicalFile(filePath, c.FILETYPE, c.NAME);
+        }
+        catch {
+            return StatusCode((int)500, new {
+                STATUSCODE = 500,
+                MESSAGE = "Lỗi khi tải File"
+            });
+        }
+        
+    }
 }
+ 
