@@ -1,40 +1,61 @@
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Project.Models;
 namespace Project.Data
 {
     public class DataContext : DbContext
     {
-        public DataContext (DbContextOptions<DataContext> options): base(options)
+        public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
-           
-        }
-        public DbSet<Project.Models.Staff> Staffs { get; set; }
-        public DbSet<Project.Models.Customer> Customers { get; set; }
-        public DbSet<Project.Models.Course> Courses { get; set; }
-        public DbSet<Project.Models.Group> Groups { get; set; }
-        public DbSet<Project.Models.JoinCourse> JoinCourses { get; set; }
-        public DbSet<Project.Models.JoinGroup> JoinGroups { get; set; }
-        public DbSet<Project.Models.CourseFeedBack> CourseFeedBacks { get; set; }
-        public DbSet<Project.Models.CourseDocument> CourseDocuments { get; set; }
 
+        }
+        public DbSet<Project.Models.User> Users { get; set; }
+        public DbSet<Project.Models.UserDetail> User_Detail { get; set; }
+        public DbSet<Project.Models.UserList> User_List { get; set; }
+        public DbSet<Project.Models.ListPosition> ListPosition { get; set; }
+        public DbSet<Project.Models.ListTitle> ListTitle { get; set; }
+        public DbSet<Project.Models.ListDepartment> ListDepartment { get; set; }
+        public DbSet<Project.Models.Articles> Articles { get; set; }
+        public DbSet<Project.Models.Blogs> Blogs { get; set; }
+        public DbSet<Project.Models.Menu> Menu { get; set; }
+        public DbSet<Project.Models.Hastag> Hastag { get; set; }
+        public DbSet<Project.Models.Role> Role { get; set; }
+        public DbSet<Project.Models.Rule> Rule { get; set; }
+        public DbSet<Project.Models.Article_Menu> Article_Menu { get; set; }
+        public DbSet<Project.Models.Role_Menu> Role_Menu { get; set; }
+        public DbSet<Project.Models.Upload_Files_Mart> Upload_Files_Mart { get; set; }
+        public DbSet<Project.Models.Upload_Files_Warehouse> Upload_Files_Warehouse { get; set; }
+        //Add new model booking into db by CongDanh on 4th April 2023
+        public DbSet<Project.Models.Booking> Bookings { get; set; }
+        //Add new model QA (question and answer) into db by CongDanh on 4th April 2023
+        public DbSet<Project.Models.QA> QA { get; set; }
+		//Add new model Expert into db by CongDanh on 4th April 2023
+		public DbSet<Project.Models.Expert> Experts { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Project.Models.Customer>().Property(f => f.ID).ValueGeneratedOnAdd();
-            modelBuilder.Entity<Project.Models.Group>().Property(f => f.ID).ValueGeneratedOnAdd();
-            modelBuilder.Entity<Project.Models.Course>().Property(f => f.ID).ValueGeneratedOnAdd();
-            modelBuilder.Entity<Project.Models.Staff>().Property(f => f.ID).ValueGeneratedOnAdd();
-            modelBuilder.Entity<Project.Models.JoinCourse>().Property(f => f.ID).ValueGeneratedOnAdd();
-            modelBuilder.Entity<Project.Models.JoinGroup>().Property(f => f.ID).ValueGeneratedOnAdd();
-            modelBuilder.Entity<Project.Models.CourseFeedBack>().Property(f => f.ID).ValueGeneratedOnAdd();
-            modelBuilder.Entity<Project.Models.CourseDocument>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.User>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.UserDetail>();
+            modelBuilder.Entity<Project.Models.UserList>().HasKey(m => new { m.USERID, m.TABLELIST, m.LISTCODE }); ;
+            modelBuilder.Entity<Project.Models.ListPosition>();
+            modelBuilder.Entity<Project.Models.ListTitle>();
+            modelBuilder.Entity<Project.Models.ListDepartment>();
+            modelBuilder.Entity<Project.Models.Articles>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.Blogs>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.Menu>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.Hastag>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.Role>();
+            modelBuilder.Entity<Project.Models.Rule>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.Article_Menu>().HasKey(m => new { m.ARTICLEID, m.MENUID });
+            modelBuilder.Entity<Project.Models.Role_Menu>();
+            modelBuilder.Entity<Project.Models.Upload_Files_Mart>().Property(f => f.ID).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Project.Models.Upload_Files_Warehouse>().Property(f => f.ID).ValueGeneratedOnAdd();
+            //Add new model booking into db by CongDanh on 4th April 2023
+            modelBuilder.Entity<Project.Models.Booking>().Property(f => f.ID).ValueGeneratedOnAdd();
+            //Add new model QA (question and answer) into db by CongDanh on 4th April 2023
+            modelBuilder.Entity<Project.Models.QA>().Property(f => f.ID).ValueGeneratedOnAdd();
+			//Add new model Expert into db by CongDanh on 4th April 2023
+			modelBuilder.Entity<Project.Models.Expert>().Property(f => f.ID).ValueGeneratedOnAdd();
 
         }
 

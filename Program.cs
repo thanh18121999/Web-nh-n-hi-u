@@ -7,17 +7,14 @@ using MediatR;
 using System.Reflection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Project.UseCases.Customers;
 using Project.UseCases;
 using Project.UseCases.Tokens;
 using Project.RSA;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IUserAccessor, UserAccessor>();
-builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
 builder.Services.AddTransient<IGeneralRepository, GeneralRepository>();
 builder.Services.AddTransient<ITokenRepository, TokenRepository>();
 // Add services to the container.
@@ -30,7 +27,8 @@ builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 //builder.Services.AddCustomRequestValidation();
 builder.Services.AddScoped<IRsaService, RsaService>();
-
+// builder.Services.AddEndpointsApiExplorer();
+// builder.Services.AddSwaggerGen();
 
 builder.Services.AddAuthentication("Bearer")
         .AddJwtBearer("Bearer", options =>
@@ -60,7 +58,7 @@ builder.Services.AddCors(o => o.AddPolicy("AllowAnyCorsPolicy", builder =>
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddDbContext<DataContext>(options =>
-        options.UseSqlite(builder.Configuration.GetConnectionString("AppData")));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("IU_BT_DB")));
 }
 
 var app = builder.Build();
@@ -68,16 +66,15 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
+    // app.UseDeveloperExceptionPage();
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseCors("AllowAnyCorsPolicy");
 app.UseRouting();
+app.UseCors("AllowAnyCorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -85,5 +82,8 @@ app.UseMiddleware<TokenMiddleware>();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// app.UseSwagger();
+// app.UseSwaggerUI();
 
 app.Run();

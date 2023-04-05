@@ -1,107 +1,145 @@
 using MediatR;
-using System.Collections.Generic;
 using AutoMapper;
 using FluentValidation;
 using System.Net;
 using Project.Data;
 using Project.Models.Dto;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-namespace Project.UseCases.Staffs
+namespace Project.UseCases.Users
 {
-    public class AddStaffResponse 
+    public class AddUserResponse
     {
-        public string? MESSAGE {get;set;}
-        public HttpStatusCode STATUSCODE {get;set;}
-        public StaffDto? RESPONSES {get;set;} 
-        public dynamic? ERROR {get;set;}
+        public string? MESSAGE { get; set; }
+        public HttpStatusCode STATUSCODE { get; set; }
+        public UserDto? RESPONSES { get; set; }
+        public dynamic? USERDETAIL { get; set; }
+        public dynamic? ERROR { get; set; }
     }
-    public class AddStaffCommand : IRequest<AddStaffResponse>
+    public class AddUserCommand : IRequest<AddUserResponse>
     {
-        public string? Username {get;set;}
-        public string? Name {get;set;}
-        public int? Sex {get;set;}
-        public string? Identify {get;set;}
-        public string? Email {get;set;}
-        public string? Phone {get;set;}
-        public string? Tittle {get;set;}
-        public DateTime? StartWorkDate {get;set;}
-        public int? Level {get;set;}
-        public string? Password {get;set;}
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+        public string? Role { get; set; }
+        public string? Name { get; set; }
+        public string? Phone { get; set; }
+        public string? Email { get; set; }
+        public string? Avatar { get; set; }
+        public string? Education { get; set; }
+        public string? Office { get; set; }
+        public string? Major { get; set; }
+        public string? Research { get; set; }
+        public string? Supervision { get; set; }
+        public string? Publication { get; set; }
+        public string? Language { get; set; }
+        public string? Aboutme { get; set; }
+        public IEnumerable<string>? Position { get; set; }
+        public IEnumerable<string>? Title { get; set; }
+        public IEnumerable<string>? Department { get; set; }
     }
-    public class AddStaffValidator : AbstractValidator<AddStaffCommand>
+    public class AddUserValidator : AbstractValidator<AddUserCommand>
     {
-        public AddStaffValidator()
+        public AddUserValidator()
         {
-            RuleFor(x => x.Username).NotNull().NotEmpty().WithMessage("Username không được trống");
-            RuleFor(x => x.Name).NotNull().NotEmpty().WithMessage("Tên không được trống");
-            RuleFor(x => x.Identify).NotNull().NotEmpty().WithMessage("CMND không được trống");
-            RuleFor(x => x.Email).NotNull().NotEmpty().WithMessage("Email không được trống");
-            RuleFor(x => x.Phone).NotNull().NotEmpty().WithMessage("SĐT không được trống");
-            RuleFor(x => x.Tittle).NotNull().NotEmpty().WithMessage("Chức danh không được trống");
-            RuleFor(x => x.Level).NotNull().NotEmpty().WithMessage("Cấp độ không được trống");
-            RuleFor(x => x.Password).NotNull().NotEmpty().WithMessage("Password không được trống");
+
         }
     }
-    public class AddStaffHandler : IRequestHandler<AddStaffCommand, AddStaffResponse>
+    public class AddUserHandler : IRequestHandler<AddUserCommand, AddUserResponse>
     {
         private readonly IMapper _mapper;
         private readonly DataContext _dbContext;
-        //private readonly StaffRepository _StaffRepo;
+        //private readonly UserRepository _UserRepo;
 
-        public AddStaffHandler(DataContext dbContext,IMapper mapper)
+        public AddUserHandler(DataContext dbContext, IMapper mapper)
         {
             _mapper = mapper;
             _dbContext = dbContext;
-            //_StaffRepo = StaffRepo;
+            //_UserRepo = UserRepo;
         }
-        public async Task<AddStaffResponse> Handle(AddStaffCommand command, CancellationToken cancellationToken)
+        public async Task<AddUserResponse> Handle(AddUserCommand command, CancellationToken cancellationToken)
         {
             using (var dbContextTransaction = _dbContext.Database.BeginTransaction())
             {
-                try {
+                try
+                {
                     GeneralRepository _generalRepo = new GeneralRepository(_dbContext);
-                    bool _username_checked = _dbContext.Staffs.Any(u => u.USERNAME == command.Username);
-                    bool _phone_checked = _dbContext.Staffs.Any(u => u.PHONE == command.Phone);
-                    bool _email_checked = _dbContext.Staffs.Any(u => u.EMAIL == command.Email);
-                    bool _identify_checked = _dbContext.Staffs.Any(u => u.IDENTIFY == command.Identify);
-
-                    List<string> _existed_prop = new List<string> { _username_checked ? "Username đã được sử dụng!" : string.Empty , 
-                                                                    _phone_checked ? "SĐT đã được sử dụng!": string.Empty, 
-                                                                    _email_checked ? "Email đã được sử dụng!" : string.Empty,
-                                                                    _identify_checked ? "CMND đã được sử dụng!" : string.Empty
+                    bool _username_checked = _dbContext.Users.Any(u => u.USERNAME == command.Username);
+                    bool _phone_checked = _dbContext.User_Detail.Any(u => u.PHONE == command.Phone);
+                    bool _email_checked = _dbContext.User_Detail.Any(u => u.EMAIL == command.Email);
+                    //Check trùng
+                    List<string> _existed_prop = new List<string> { _username_checked ? "USER_ALREADY_EXISTS" : string.Empty ,
+                                                                    _phone_checked ? "PHONE_NUMBER_USED_BY_ANOTHER_ACCOUNT": string.Empty,
+                                                                    _email_checked ? "EMAIL_USED_BY_ANOTHER_ACCOUNT" : string.Empty
                                                                     };
                     _existed_prop.RemoveAll(s => s == string.Empty);
                     if (_existed_prop.Count() > 0)
                     {
-                        return new AddStaffResponse {
-                            MESSAGE = "Thất bại!",
+                        return new AddUserResponse
+                        {
+                            MESSAGE = "USER_INFO_ALREADY_EXIST",
                             STATUSCODE = HttpStatusCode.BadRequest,
                             ERROR = _existed_prop
                         };
                     }
-                    Project.Models.Staff _Staff_to_add = _mapper.Map<Project.Models.Staff>(command);
+                    Project.Models.User _User_to_add = _mapper.Map<Project.Models.User>(command);
+                    Project.Models.UserDetail _User_Detail_to_add = _mapper.Map<Project.Models.UserDetail>(command);
+                    Project.Models.UserList _User_List_to_add = _mapper.Map<Project.Models.UserList>(command);
                     if (!string.IsNullOrEmpty(command.Password))
                     {
-                        _Staff_to_add.PASSWORDHASH = _generalRepo.HashPassword(command.Password, out var salt);
-                        _Staff_to_add.PASSWORDSALT = Convert.ToHexString(salt);
+                        _User_to_add.PASSWORDHASH = _generalRepo.HashPassword(command.Password, out var salt);
+                        _User_to_add.PASSWORDSALT = Convert.ToHexString(salt);
                     }
-                    _Staff_to_add.STATUS = "active";
-                    _Staff_to_add.CODE = "KH_" + String.Concat(Guid.NewGuid().ToString("N").Select(c => (char)(c + 17))).ToUpper().Substring(0, 4) + 
-                                            String.Concat(Guid.NewGuid().ToString("N").Select(c => (char)(c + 17))).ToUpper().Substring(10, 4);
-                    await _dbContext.AddAsync(_Staff_to_add, cancellationToken);
-                    await _dbContext.SaveChangesAsync(cancellationToken);
+                    _User_to_add.STATUS = 1;
+                    _User_to_add.CREATEDATE = DateTime.Now;
+                    _dbContext.Add(_User_to_add);
+                    _dbContext.SaveChanges();
+                    _dbContext.Entry(_User_to_add).GetDatabaseValues();
+
+                    //add user detail
+                    _User_Detail_to_add.USERID = _User_to_add.ID;
+                    _dbContext.Add(_User_Detail_to_add);
+                    _dbContext.SaveChanges();
+
+                    //add user position
+                    _User_List_to_add.USERID = _User_to_add.ID;
+                    foreach (string position in command.Position)
+                    {
+                        _User_List_to_add.TABLELIST = "POSITION";
+                        _User_List_to_add.LISTCODE = position;
+                        _dbContext.Add(_User_List_to_add);
+                        _dbContext.SaveChanges();
+                    }
+
+                    //add user title
+                    foreach (string title in command.Title)
+                    {
+                        _User_List_to_add.TABLELIST = "TITLE";
+                        _User_List_to_add.LISTCODE = title;
+                        _dbContext.Add(_User_List_to_add);
+                        _dbContext.SaveChanges();
+                    }
+
+                    //add user department
+                    foreach (string department in command.Department)
+                    {
+                        _User_List_to_add.TABLELIST = "DEPARTMENT";
+                        _User_List_to_add.LISTCODE = department;
+                        _dbContext.Add(_User_List_to_add);
+                        _dbContext.SaveChanges();
+                    }
                     dbContextTransaction.Commit();
-                    return new AddStaffResponse {
-                        MESSAGE = "Tạo nhân viên thành công!",
+                    return new AddUserResponse
+                    {
+                        MESSAGE = "ADD_SUCCESSFUL",
                         STATUSCODE = HttpStatusCode.OK,
-                        RESPONSES = _mapper.Map<StaffDto>(_Staff_to_add)
+                        RESPONSES = _mapper.Map<UserDto>(_User_to_add),
+                        USERDETAIL = _User_Detail_to_add,
                     };
                 }
-                catch {
+                catch
+                {
                     dbContextTransaction.Rollback();
-                    return new AddStaffResponse {
-                        MESSAGE = "Tạo nhân viên thất bại!",
+                    return new AddUserResponse
+                    {
+                        MESSAGE = "ADD_FAIL",
                         STATUSCODE = HttpStatusCode.InternalServerError
                     };
                 }

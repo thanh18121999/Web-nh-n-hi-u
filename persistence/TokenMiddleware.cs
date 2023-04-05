@@ -1,13 +1,9 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 
-public class TokenMiddleware {
+public class TokenMiddleware
+{
     private readonly RequestDelegate _next;
     private readonly IConfiguration _config;
     public TokenMiddleware(RequestDelegate next, IConfiguration config)
@@ -18,7 +14,7 @@ public class TokenMiddleware {
     public async Task Invoke(HttpContext context)
     {
         var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-        
+
         if (token != null)
             attachUserToContext(context, token);
         await _next(context);
@@ -29,7 +25,7 @@ public class TokenMiddleware {
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]);
-    
+
             tokenHandler.ValidateToken(token, new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
@@ -41,23 +37,21 @@ public class TokenMiddleware {
                 // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
                 ClockSkew = TimeSpan.Zero
             }, out SecurityToken validatedToken);
-            
+
             var jwtToken = (JwtSecurityToken)validatedToken;
-    
+
             var ID = jwtToken.Claims.First(x => x.Type == "ID").Value;
-            var Code = jwtToken.Claims.First(x => x.Type == "Code").Value;
             var Name = jwtToken.Claims.First(x => x.Type == "Name").Value;
             var Username = jwtToken.Claims.First(x => x.Type == "Username").Value;
 
             // attach user to context on successful jwt validation
             context.Items["ID"] = ID;
-            context.Items["Code"] = Code;
             context.Items["Name"] = Name;
             context.Items["Username"] = Username;
         }
         catch (SecurityTokenExpiredException) // token has expired
         {
-                
+
             context.Items["Token_Expired"] = true;
             // user is not attached to context so request won't have access to secure routes
         }

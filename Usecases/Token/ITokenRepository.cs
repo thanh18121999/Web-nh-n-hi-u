@@ -6,5 +6,6 @@ namespace Project.UseCases.Tokens
         string BuildToken(Claim[] claims);
         bool IsTokenValid(string token);
         ClaimsPrincipal GetClaimsPrincipalFromToken(string token);
+        string GetTokenAliveTime();
     }
 }

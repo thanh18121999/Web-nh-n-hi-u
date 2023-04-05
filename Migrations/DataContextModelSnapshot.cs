@@ -15,190 +15,42 @@ namespace ProjectBE.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "6.0.5");
+            modelBuilder.HasAnnotation("ProductVersion", "6.0.1");
 
-            modelBuilder.Entity("Project.Models.Course", b =>
+            modelBuilder.Entity("Project.Models.Articles", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("CODE")
+                    b.Property<string>("ARTICLE_CONTENT")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("CREATEDDATE")
+                    b.Property<string>("AVATAR")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CREATEDUSER")
+                    b.Property<DateTime>("CREATE_DATE")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("DESCRIPTION")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("ENDDATE")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NAME")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("STARTDATE")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("STATUS")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("TYPE")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("Courses");
-                });
-
-            modelBuilder.Entity("Project.Models.CourseDocument", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("CREATE_USER")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("CODE")
+                    b.Property<string>("HASTAG")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("CREATEDDATE")
+                    b.Property<string>("LANGUAGE")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("CREATEDUSER")
+                    b.Property<DateTime>("LATEST_EDIT_DATE")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("LATEST_EDIT_USER")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("DESCRIPTION")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("DOCUMENT")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("FILETYPE")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("IDCourse")
+                    b.Property<int>("PRIORITY_LEVEL")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("NAME")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("CourseDocuments");
-                });
-
-            modelBuilder.Entity("Project.Models.CourseFeedBack", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CREATEDDATE")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("FEEDBACK")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("IDCOURSE")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("IDUSER")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("Rating")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("CourseFeedBacks");
-                });
-
-            modelBuilder.Entity("Project.Models.Customer", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("CODE")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CREATEDDATE")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("EMAIL")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("IDENTIFY")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NAME")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PASSWORDHASH")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PASSWORDSALT")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PHONE")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("SEX")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("STATUS")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("USERNAME")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("Customers");
-                });
-
-            modelBuilder.Entity("Project.Models.Group", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("CODE")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CREATEDDATE")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CREATEDUSER")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("DESCRIPTION")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NAME")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("STATUS")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("Groups");
-                });
-
-            modelBuilder.Entity("Project.Models.JoinCourse", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("IDCOURSE")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("IDMEMBER")
+                    b.Property<string>("SUMMARY")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TITLE")
@@ -206,24 +58,75 @@ namespace ProjectBE.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("JoinCourses");
+                    b.ToTable("Articles");
                 });
 
-            modelBuilder.Entity("Project.Models.JoinGroup", b =>
+            modelBuilder.Entity("Project.Models.Hastag", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("IDGROUP")
+                    b.Property<string>("CODE")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Hastag");
+                });
+
+            modelBuilder.Entity("Project.Models.Menu", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("IDMEMBER")
+                    b.Property<string>("DESCRIPTION")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("HASTAG")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MENU_LEVEL")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("ID");
 
-                    b.ToTable("JoinGroups");
+                    b.ToTable("Menu");
+                });
+
+            modelBuilder.Entity("Project.Models.Role", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CODE")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RULE_LIST")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Role");
+                });
+
+            modelBuilder.Entity("Project.Models.Rule", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CODE")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DESCRIPTION")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Rule");
                 });
 
             modelBuilder.Entity("Project.Models.Staff", b =>
@@ -238,13 +141,10 @@ namespace ProjectBE.Migrations
                     b.Property<string>("EMAIL")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("IDENTIFY")
+                    b.Property<string>("NAME")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("LEVEL")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("NAME")
+                    b.Property<string>("PASSWORD")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PASSWORDHASH")
@@ -256,17 +156,8 @@ namespace ProjectBE.Migrations
                     b.Property<string>("PHONE")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("SEX")
+                    b.Property<int?>("ROLE_ID")
                         .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("STARTWORKDATE")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("STATUS")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("TITLE")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("USERNAME")
                         .HasColumnType("TEXT");

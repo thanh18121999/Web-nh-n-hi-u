@@ -7,82 +7,96 @@ using Project.Data;
 using Project.Models.Dto;
 using Project.UseCases.Tokens;
 using Microsoft.EntityFrameworkCore;
-namespace Project.UseCases.Staffs
+namespace Project.UseCases.Users
 {
-    public class LoginStaffResponse 
+    public class LoginUserResponse
     {
-        public string? MESSAGE {get;set;}
-        public HttpStatusCode STATUSCODE {get;set;}
-        public StaffLoginDto? RESPONSES {get;set;} 
+        public string? MESSAGE { get; set; }
+        public HttpStatusCode STATUSCODE { get; set; }
+        public UserLoginDto? RESPONSES { get; set; }
+        public dynamic? menuList { get; set; }
     }
-    public class LoginStaffCommand : IRequest<LoginStaffResponse>
+    public class LoginUserCommand : IRequest<LoginUserResponse>
     {
-        public string Username {get;set;} = string.Empty;
-        public string Password {get;set;} = string.Empty;
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
-    public class LoginStaffValidator : AbstractValidator<LoginStaffCommand>
+    public class LoginUserValidator : AbstractValidator<LoginUserCommand>
     {
-        public LoginStaffValidator()
+        public LoginUserValidator()
         {
-            RuleFor(x => x.Username).NotNull().NotEmpty().WithMessage("Username không được trống");
-            RuleFor(x => x.Password).NotNull().NotEmpty().WithMessage("Password không được trống");
+            RuleFor(x => x.Username).NotNull().NotEmpty().WithMessage("USERNAME CANNOT BE EMPTY");
+            RuleFor(x => x.Password).NotNull().NotEmpty().WithMessage("PASSWORD CANNOT BE EMPTY");
         }
     }
-    public class LoginStaffHandler : IRequestHandler<LoginStaffCommand, LoginStaffResponse>
+    public class LoginUserHandler : IRequestHandler<LoginUserCommand, LoginUserResponse>
     {
         private readonly IMapper _mapper;
         private readonly DataContext _dbContext;
         private readonly ITokenRepository _tokenRepo;
 
-        public LoginStaffHandler(DataContext dbContext,IMapper mapper, ITokenRepository tokenRepo)
+        public LoginUserHandler(DataContext dbContext, IMapper mapper, ITokenRepository tokenRepo)
         {
             _mapper = mapper;
             _dbContext = dbContext;
             _tokenRepo = tokenRepo;
         }
-        public async Task<LoginStaffResponse> Handle(LoginStaffCommand command, CancellationToken cancellationToken)
+        public async Task<LoginUserResponse> Handle(LoginUserCommand command, CancellationToken cancellationToken)
         {
-            
-                try {
-                    GeneralRepository _StaffRepo = new GeneralRepository(_dbContext);
-                    Project.Models.Staff? _Staff_loging = await _dbContext.Staffs.FirstOrDefaultAsync(x => x.USERNAME == command.Username, cancellationToken);
-                    if (_Staff_loging == null)
-                    {
-                        return new LoginStaffResponse {
-                            MESSAGE = "Thông tin username không đúng!",
-                            STATUSCODE = HttpStatusCode.OK,
-                        };
-                    }
-                    else if (! _StaffRepo.ComparePassword(command.Password, _Staff_loging.PASSWORDHASH, _Staff_loging.PASSWORDSALT))
-                    {
-                        return new LoginStaffResponse {
-                            MESSAGE = "Password không đúng!",
-                            STATUSCODE = HttpStatusCode.OK,
-                        };
-                    }
-                    StaffLoginDto _Staff_login_dto = _mapper.Map<StaffLoginDto>(_Staff_loging);
-                    var user_claims = new Claim[] {};
-                    user_claims = new[] {
-                        new Claim("ID", _Staff_login_dto.ID.ToString()),
-                        new Claim("Username", _Staff_login_dto.USERNAME),
-                        new Claim("Name", _Staff_login_dto.NAME),
-                        new Claim("Code", _Staff_login_dto.CODE)
 
-                    };
-                    _Staff_login_dto.TOKEN = _tokenRepo.BuildToken(user_claims);
-                    return new LoginStaffResponse {
-                        MESSAGE = "Truy vấn thành công!",
+            try
+            {
+                GeneralRepository _UserRepo = new GeneralRepository(_dbContext);
+                Project.Models.User? _User_loging = await _dbContext.Users.FirstOrDefaultAsync(x => x.USERNAME == command.Username, cancellationToken);
+                if (_User_loging == null)
+                {
+                    return new LoginUserResponse
+                    {
+                        MESSAGE = "INCORRECT_USER_NAME",
                         STATUSCODE = HttpStatusCode.OK,
-                        RESPONSES = _Staff_login_dto
                     };
                 }
-                catch {
-                    return new LoginStaffResponse {
-                        MESSAGE = "Thất bại!",
-                        STATUSCODE = HttpStatusCode.InternalServerError
+                else if (!_UserRepo.ComparePassword(command.Password, _User_loging.PASSWORDHASH, _User_loging.PASSWORDSALT))
+                {
+                    return new LoginUserResponse
+                    {
+                        MESSAGE = "INCORRECT_PASSWORD",
+                        STATUSCODE = HttpStatusCode.OK,
                     };
                 }
-            
+                UserLoginDto _User_login_dto = _mapper.Map<UserLoginDto>(_User_loging);
+                var _User_login_dto_detail = _dbContext.User_Detail.Where(x => x.USERID == _User_login_dto.ID).FirstOrDefault();
+                var user_claims = new Claim[] { };
+                user_claims = new[] {
+                        new Claim("ID", _User_login_dto.ID.ToString()),
+                        new Claim("Username", _User_login_dto.USERNAME),
+                        new Claim("Name", _User_login_dto_detail.NAME),
+                        //new Claim("Code", _User_login_dto.CODE)
+                    };
+                _User_login_dto.TOKEN = _tokenRepo.BuildToken(user_claims);
+                _User_login_dto.TOKENALIVETIME = _tokenRepo.GetTokenAliveTime();
+                var iduser = _User_login_dto.ID.ToString();
+                var _iduser = Int32.Parse(iduser);
+                var user = _dbContext.Users.Where(x => x.ID == _iduser).ToList();
+                var userRole = user.First().ROLE;
+                var result = await _dbContext.Role_Menu.Where(x => x.ROLECODE == userRole).Select(x => x.MENUID).ToListAsync();
+                return new LoginUserResponse
+                {
+                    MESSAGE = "LOGIN_SUCCESSFUL",
+                    STATUSCODE = HttpStatusCode.OK,
+                    RESPONSES = _User_login_dto,
+                    menuList = result,
+                };
+            }
+            catch
+            {
+                return new LoginUserResponse
+                {
+                    MESSAGE = "LOGIN_FAIL",
+                    STATUSCODE = HttpStatusCode.InternalServerError
+                };
+            }
+
         }
     }
 }

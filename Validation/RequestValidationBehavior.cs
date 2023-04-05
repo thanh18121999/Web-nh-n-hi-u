@@ -1,11 +1,6 @@
-using System.Threading;
-using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using Project.Validation.Models;
-using System;
-using System.Net.Http;
 namespace XLog.Order.Infrastructure.Validation
 {
     public class RequestValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>

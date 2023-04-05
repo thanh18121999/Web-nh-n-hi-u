@@ -1,11 +1,9 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using ProjectBE.Models;
 using Project.RSA;
 using System.Net;
 namespace ProjectBE.Controllers;
 
-[Route("api/general")]
+[Route("general")]
 public class AuthController : Controller
 {
     private readonly ILogger<AuthController> _logger;

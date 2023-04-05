@@ -1,75 +1,139 @@
 using MediatR;
-using System.Collections.Generic;
 using AutoMapper;
 using FluentValidation;
 using System.Net;
 using Project.Data;
 using Project.Models.Dto;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
-namespace Project.UseCases.Staffs
+namespace Project.UseCases.Users
 {
-    public class GetStaffResponse 
+    public class GetUserResponse
     {
-        public string? MESSAGE {get;set;}
-        public HttpStatusCode STATUSCODE {get;set;}
-        public IEnumerable<StaffDto>? RESPONSES {get;set;} 
+        public string? MESSAGE { get; set; }
+        public HttpStatusCode STATUSCODE { get; set; }
+        public dynamic? RESPONSES { get; set; }
     }
-    public class GetStaffCommand : IRequest<GetStaffResponse>
+    public class GetUserCommand : IRequest<GetUserResponse>
     {
-        public string? Type {get;set;}
-        public IEnumerable<string> Data {get;set;} = Enumerable.Empty<string>();
+        public string? Type { get; set; }
+        public IEnumerable<string> Data { get; set; } = Enumerable.Empty<string>();
     }
-    public class GetStaffValidator : AbstractValidator<GetStaffCommand>
+    public class GetUserValidator : AbstractValidator<GetUserCommand>
     {
-        public GetStaffValidator()
+        public GetUserValidator()
         {
-            RuleFor(x => x.Type).NotNull().NotEmpty().WithMessage("Loại truy vấn không được trống");
-            RuleFor(x => x.Data).NotNull().NotEmpty().WithMessage("Thông tin truy vấn không được trống");
+            RuleFor(x => x.Type).NotNull().NotEmpty().WithMessage("INCORRECT QUERY TYPE");
+            RuleFor(x => x.Data).NotNull().NotEmpty().WithMessage("INCORRECT QUERY INFORMATION");
         }
     }
-    public class GetStaffHandler : IRequestHandler<GetStaffCommand, GetStaffResponse>
+    public class GetUserHandler : IRequestHandler<GetUserCommand, GetUserResponse>
     {
         private readonly IMapper _mapper;
         private readonly DataContext _dbContext;
 
-        public GetStaffHandler(DataContext dbContext,IMapper mapper)
+        public GetUserHandler(DataContext dbContext, IMapper mapper)
         {
             _mapper = mapper;
             _dbContext = dbContext;
         }
-        public async Task<GetStaffResponse> Handle(GetStaffCommand command, CancellationToken cancellationToken)
+        public async Task<GetUserResponse> Handle(GetUserCommand command, CancellationToken cancellationToken)
         {
-            
-                try {
-                    IEnumerable<Project.Models.Staff> list_Staff_response = Enumerable.Empty<Project.Models.Staff>();
 
-                    switch (command.Type)
+            try
+            {
+                IEnumerable<Project.Models.User> list_User_response = Enumerable.Empty<Project.Models.User>();
+                if (command.Type == null)
+                {
+                    return new GetUserResponse
                     {
-                        case "GET_BY_CODE":
-                            list_Staff_response = await _dbContext.Staffs.Where(x => command.Data.Contains(x.CODE)).ToListAsync(cancellationToken);
-                            break;
-                        case "GET_BY_ID" :
-                            list_Staff_response = await _dbContext.Staffs.Where(x => command.Data.Contains(x.ID.ToString())).ToListAsync(cancellationToken);
-                            break;
-                        default:
-                            list_Staff_response = await _dbContext.Staffs.ToListAsync(cancellationToken);
-                            break;
-                    }
-                    
-                    return new GetStaffResponse {
-                        MESSAGE = "Truy vấn thành công!",
-                        STATUSCODE = HttpStatusCode.OK,
-                        RESPONSES = _mapper.Map<IEnumerable<StaffDto>>(list_Staff_response)
-                    };
-                }
-                catch {
-                    return new GetStaffResponse {
-                        MESSAGE = "Thất bại!",
+                        MESSAGE = "MISSING_PARAMETER_TYPE",
                         STATUSCODE = HttpStatusCode.InternalServerError
                     };
                 }
-            
+                else if (command.Type == "GET_ALL")
+                {
+                    // list_User_response = await _dbContext.Users.ToListAsync(cancellationToken);
+                    // var result = from urs in _mapper.Map<IEnumerable<UserDto>>(list_User_response)
+                    //              join ursdetail in _dbContext.User_Detail.ToList() on urs.ID equals ursdetail.USERID
+                    //              join urslist in _dbContext.User_List.Where(x => x.TABLELIST == "TITLE").ToList() on urs.ID equals urslist.USERID
+                    //              join listtitle in _dbContext.ListTitle.ToList() on urslist.LISTCODE equals listtitle.CODE
+                    //              select new { urs, ursdetail, listtitle };
+                    // var title = _dbContext.User_List.Where(x => x.TABLELIST == "TITLE").Join(_dbContext.ListTitle, a => a.LISTCODE, b => b.CODE, (a, b) => new { a, b })
+                    //             .GroupBy(g => new { g.a.USERID })
+                    //             .Select(g => new
+                    //             {
+                    //                 g.Key.USERID,
+                    //                 TITLES = string.Join(", ", g.Select(x => x.b.DESCRIPTION))
+                    //             });
+                    // var position = _dbContext.User_List.Where(x => x.TABLELIST == "POSITION").Join(_dbContext.ListPosition, a => a.LISTCODE, b => b.CODE, (a, b) => new { a, b })
+                    //             .GroupBy(g => new { g.a.USERID })
+                    //             .Select(g => new
+                    //             {
+                    //                 g.Key.USERID,
+                    //                 POSITIONS = string.Join(", ", g.Select(x => x.b.DESCRIPTION))
+                    //             });
+                    // list_User_response = await _dbContext.Users.ToListAsync(cancellationToken);
+                    // var result = from urs in _mapper.Map<IEnumerable<UserDto>>(list_User_response)
+                    //              join ursdetail in _dbContext.User_Detail.ToList() on urs.ID equals ursdetail.USERID
+                    //              select new { urs, ursdetail };
+                    var title = _dbContext.User_List.Where(x => x.TABLELIST == "TITLE").Join(_dbContext.ListTitle, a => a.LISTCODE, b => b.CODE, (a, b) => new { a, b })
+                                .GroupBy(g => new { g.a.USERID })
+                                .Select(g => new
+                                {
+                                    g.Key.USERID,
+                                    CODE = string.Join(", ", g.Select(x => x.b.CODE)),
+                                    DESCRIPTION = string.Join(", ", g.Select(x => x.b.DESCRIPTION))
+                                });
+                    var position = _dbContext.User_List.Where(x => x.TABLELIST == "POSITION").Join(_dbContext.ListPosition, a => a.LISTCODE, b => b.CODE, (a, b) => new { a, b })
+                                .GroupBy(g => new { g.a.USERID })
+                                .Select(g => new
+                                {
+                                    g.Key.USERID,
+                                    CODE = string.Join(", ", g.Select(x => x.b.CODE)),
+                                    DESCRIPTION = string.Join(", ", g.Select(x => x.b.DESCRIPTION))
+                                });
+                    var department = _dbContext.User_List.Where(x => x.TABLELIST == "DEPARTMENT").Join(_dbContext.ListDepartment, a => a.LISTCODE, b => b.CODE, (a, b) => new { a, b })
+                                .GroupBy(g => new { g.a.USERID })
+                                .Select(g => new
+                                {
+                                    g.Key.USERID,
+                                    CODE = string.Join(", ", g.Select(x => x.b.CODE)),
+                                    DESCRIPTION = string.Join(", ", g.Select(x => x.b.DESCRIPTION))
+                                });
+                    var user = _mapper.Map<IEnumerable<UserDto>>(_dbContext.Users).Join(_dbContext.User_Detail, USER => USER.ID, USERDETAIL => USERDETAIL.USERID
+                                , (USER, USERDETAIL) => new
+                                {
+                                    USER,
+                                    USERDETAIL,
+                                    TITLES = title.Where(x => x.USERID == USER.ID).Select(x => new { CODE = x.CODE, DESCRIPTION = x.DESCRIPTION }).FirstOrDefault(),
+                                    POSITIONS = position.Where(x => x.USERID == USER.ID).Select(x => new { CODE = x.CODE, DESCRIPTION = x.DESCRIPTION }).FirstOrDefault(),
+                                    DEPARTMENTS = department.Where(x => x.USERID == USER.ID).Select(x => new { CODE = x.CODE, DESCRIPTION = x.DESCRIPTION }).FirstOrDefault(),
+                                });
+                    return new GetUserResponse
+                    {
+                        MESSAGE = "GET_SUCCESSFUL",
+                        STATUSCODE = HttpStatusCode.OK,
+                        RESPONSES = user
+                    };
+                }
+                else
+                {
+                    return new GetUserResponse
+                    {
+                        MESSAGE = "GET_FAIL",
+                        STATUSCODE = HttpStatusCode.InternalServerError
+                    };
+                }
+            }
+            catch
+            {
+                return new GetUserResponse
+                {
+                    MESSAGE = "GET_FAIL",
+                    STATUSCODE = HttpStatusCode.InternalServerError
+                };
+            }
+
         }
     }
 }

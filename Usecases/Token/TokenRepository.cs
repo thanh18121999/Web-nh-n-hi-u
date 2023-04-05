@@ -6,7 +6,7 @@ namespace Project.UseCases.Tokens
 {
     public class TokenRepository : ITokenRepository
     {
-        private readonly double EXPIRY_DURATION_MINUTES = 86400;
+        private readonly double EXPIRY_DURATION_MINUTES = 1440;
         private readonly IConfiguration _config;
         private readonly string JWT_token_secret_key;
         private readonly string JWT_token_issuer;
@@ -28,6 +28,11 @@ namespace Project.UseCases.Tokens
             var tokenDescriptor = new JwtSecurityToken(JWT_token_issuer, JWT_token_Audience, claims,
                 expires: DateTime.Now.AddMinutes(EXPIRY_DURATION_MINUTES), signingCredentials: credentials);
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+        }
+        public string GetTokenAliveTime()
+        {
+            var expireTime = DateTime.Now.AddMinutes(EXPIRY_DURATION_MINUTES);
+            return expireTime.ToString();
         }
         public bool IsTokenValid(string token)
         {
@@ -53,26 +58,30 @@ namespace Project.UseCases.Tokens
             }
             return true;
         }
-        public ClaimsPrincipal GetClaimsPrincipalFromToken(string token){
-            try {
+        public ClaimsPrincipal GetClaimsPrincipalFromToken(string token)
+        {
+            try
+            {
                 var tokenHandler = new JwtSecurityTokenHandler();
                 //var key = Encoding.UTF8.GetBytes(JWT_token_secret_key);
                 var mySecret = Encoding.UTF8.GetBytes(JWT_token_secret_key);
                 var mySecurityKey = new SymmetricSecurityKey(mySecret);
 
-                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters{
+                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
                     ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = mySecurityKey,
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidIssuer = JWT_token_issuer,
-                        ValidAudience = JWT_token_issuer,
-                        ValidateLifetime = true
+                    IssuerSigningKey = mySecurityKey,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = JWT_token_issuer,
+                    ValidAudience = JWT_token_issuer,
+                    ValidateLifetime = true
                 }, out SecurityToken validatedToken);
                 var jwtToken = (JwtSecurityToken)validatedToken;
                 return principal;
             }
-            catch {
+            catch
+            {
                 throw new SecurityTokenException("Invalid token");
             }
         }
