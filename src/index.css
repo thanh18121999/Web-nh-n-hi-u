@@ -12,6 +12,68 @@ code {
     monospace;
 }
 
+.login-form {
+  max-width: 300px;
+}
+
+.login-form-forgot {
+  float: right;
+}
+
+.login-form-button {
+  width: 100%;
+}
+
 .ant-table-thead>tr>th {
   background: #009933 !important
+}
+
+.ant-tabs>.ant-tabs-nav .ant-tabs-nav-wrap {
+  justify-content: flex-end !important;
+}
+
+.ant-alert-with-description {
+  align-items: center !important;
+}
+
+.sun-editor-editable table {
+  display: table;
+  table-layout: auto !important;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 10px;
+  background-color: transparent;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+.sun-editor-editable table td,
+.sun-editor-editable table th {
+  border: 1px solid #e1e1e1;
+  padding: 0.4em;
+  background-clip: padding-box;
+}
+
+.events {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.events .ant-badge-status {
+  width: 100%;
+  overflow: hidden;
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.notes-month {
+  font-size: 28px;
+  text-align: center;
+}
+
+.notes-month section {
+  font-size: 28px;
 }

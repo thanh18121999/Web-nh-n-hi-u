@@ -13,9 +13,10 @@ import { UpdateArticle } from "../Service";
 import SunEditor from "suneditor-react";
 import "suneditor/src/assets/css/suneditor.css";
 
+const { SHOW_PARENT } = TreeSelect;
 const { TextArea } = Input;
 
-const EditArticle = ({ onCancel, value, dataToUpdate }) => {
+const EditCategory = ({ onCancel, value, dataToUpdate }) => {
   const editor = useRef();
   const getSunEditorInstance = (sunEditor) => {
     editor.current = sunEditor;
@@ -49,6 +50,7 @@ const EditArticle = ({ onCancel, value, dataToUpdate }) => {
   const onChangeForm = (e) => {
     setDataEdit((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
+  const menu = JSON.parse(sessionStorage.getItem("menuCategory"));
 
   const [selectedFile, setSelectedFile] = useState();
 
@@ -127,6 +129,24 @@ const EditArticle = ({ onCancel, value, dataToUpdate }) => {
     { val: "en", label: "English" },
   ];
 
+  const [treeval, setTreeval] = useState(undefined);
+  const onChange = (newValue) => {
+    setTreeval(newValue);
+    setDataEdit({ ...dataEdit, menu: newValue });
+  };
+  const treeData = menu;
+  const tProps = {
+    treeData,
+    treeval,
+    onChange,
+    treeCheckable: true,
+    showCheckedStrategy: SHOW_PARENT,
+    placeholder: "Please select",
+    style: {
+      width: "100%",
+    },
+    initialvalues: dataEdit.menu,
+  };
   return (
     <>
       <div className="edit-group">
@@ -135,7 +155,8 @@ const EditArticle = ({ onCancel, value, dataToUpdate }) => {
             <input type="file" name="avatar" onChange={handleChangeImage} />
             <img
               src={
-                "https://brandname.phuckhangnet.vn/ftp_images/" + dataEdit.avatar
+                "https://brandname.phuckhangnet.vn/ftp_images/" +
+                dataEdit.avatar
               }
               style={{
                 height: "10em",
@@ -189,6 +210,18 @@ const EditArticle = ({ onCancel, value, dataToUpdate }) => {
               onChange={onChangeForm}
               value={dataEdit.hastag}
             />
+          </Form.Item>
+          <Form.Item
+            label="Menu"
+            name="menu"
+            rules={[
+              {
+                required: true,
+                message: "Menu không được trống!",
+              },
+            ]}
+          >
+            <TreeSelect {...tProps} />
           </Form.Item>
           <Form.Item label="Ngôn ngữ" name="language">
             <Select
@@ -267,4 +300,4 @@ const EditArticle = ({ onCancel, value, dataToUpdate }) => {
   );
 };
 
-export default EditArticle;
+export default EditCategory;

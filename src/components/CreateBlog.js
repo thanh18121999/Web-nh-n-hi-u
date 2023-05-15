@@ -1,42 +1,18 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Button, Space, Form, Input, Select, message } from "antd";
-import { AddArticle } from "../Service";
+import { AddBlog } from "../Service";
 import SunEditor from "suneditor-react";
 import "suneditor/src/assets/css/suneditor.css";
 
-const { TextArea } = Input;
-
-const CreateArticle = ({ onCancel, value }) => {
+const CreateBlog = ({ onCancel, value }) => {
   const editor = useRef();
   const getSunEditorInstance = (sunEditor) => {
     editor.current = sunEditor;
   };
-  const { Option } = Select;
   const [form] = Form.useForm();
-  const [menu, setMenu] = useState([]);
-  useEffect(() => {
-    const menuArticle = JSON.parse(sessionStorage.getItem("menuArticle"));
-    const menuHasPage = sessionStorage.getItem("articleAvailable").split(",");
-    subtractmenu(menuArticle, menuHasPage);
-  }, []);
-  function subtractmenu(a, b) {
-    for (var i = 0; i < a.length; i++) {
-      if (b.includes(a[i].id.toString())) {
-        const index = a.indexOf(a[i]);
-        a.splice(index, 1);
-        i--;
-      }
-    }
-    setMenu(a);
-  }
-  const [selectedFile, setSelectedFile] = useState();
-  const [view, setView] = useState([]);
   const [dataCreate, setDataCreate] = useState({
-    avatar: [""],
     title: "",
-    summary: "",
     hastag: "",
-    menu: [],
     language: "vn",
   });
   const [articlecontent, setArticlecontent] = useState("");
@@ -49,12 +25,6 @@ const CreateArticle = ({ onCancel, value }) => {
       message.error("Tiêu đề không được trống");
     } else if (!articlecontent) {
       message.error("Nội dung không được trống");
-    } else if (dataCreate.menu.length == 0) {
-      message.error("Menu không được trống");
-    } else if (dataCreate.avatar.length == 0) {
-      message.error("Avatar không được trống");
-    } else if (selectedFile?.size > 10485760) {
-      message.error("Avatar không được vượt quá 10MB");
     } else {
       var objPreview = {
         message: "success",
@@ -81,46 +51,29 @@ const CreateArticle = ({ onCancel, value }) => {
       }
     }
   };
-  const CreateNewArticle = async () => {
+  const CreateNewBlog = async () => {
     if (!dataCreate.title) {
       message.error("Tiêu đề không được trống");
     } else if (!articlecontent) {
       message.error("Nội dung không được trống");
-    } else if (dataCreate.menu.length == 0) {
-      message.error("Menu không được trống");
-    } else if (dataCreate.avatar.length == 0) {
-      message.error("Avatar không được trống");
-    } else if (selectedFile?.size > 10485760) {
-      message.error("Avatar không được vượt quá 10MB");
     } else {
-      let result = await AddArticle(
-        dataCreate.avatar[0],
+      let res = AddBlog(
         dataCreate.title,
-        dataCreate.summary,
-        dataCreate.hastag,
-        dataCreate.menu,
-        dataCreate.language,
         articlecontent,
+        dataCreate.hastag,
+        dataCreate.language,
         onCancel
       );
-      if (result.statuscode == 200) {
+      if ((res.statuscode = 200)) {
         setDataCreate({
           ...dataCreate,
-          avatar: [],
           title: "",
-          summary: "",
           hastag: "",
-          menu: [],
           language: "vn",
         });
         setArticlecontent("");
-        setView([]);
-        setSelectedFile([]);
-        form.resetFields(["avatar"]);
         form.resetFields(["title"]);
-        form.resetFields(["summary"]);
         form.resetFields(["hastag"]);
-        form.resetFields(["menu"]);
         form.resetFields(["language"]);
         form.resetFields(["article_content"]);
         message.success("Thêm bài viết thành công");
@@ -130,50 +83,14 @@ const CreateArticle = ({ onCancel, value }) => {
     }
   };
 
-  function handleChangeImage(e) {
-    if (e.target.files[0]?.size > 10485760) {
-      message.error("Avatar không được vượt quá 10MB");
-    } else {
-      setSelectedFile(e.target.files[0]);
-      setView(URL.createObjectURL(e.target.files[0]));
-      const formDataAvatar = new FormData();
-      var iduser = JSON.parse(sessionStorage.getItem("iduser"));
-      formDataAvatar.append("ID_User", iduser);
-      formDataAvatar.append("My_File", e.target.files[0]);
-      formDataAvatar.append("File_Name", "pa");
-      fetch("https://brandname.phuckhangnet.vn/api/upload/verify_upload", {
-        method: "POST",
-        body: formDataAvatar,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          setDataCreate({ ...dataCreate, avatar: data });
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    }
-  }
   return (
     <div className="create-group">
       <Form
         layout="vertical"
         name="control-hooks"
         form={form}
-        onFinish={CreateNewArticle}
+        onFinish={CreateNewBlog}
       >
-        <Form.Item label="Avatar" name="avatar">
-          <input type="file" onChange={handleChangeImage} />
-          <img
-            src={view}
-            style={{
-              height: "10em",
-              width: "auto",
-              objectFit: "contain",
-              marginTop: "1em",
-            }}
-          />
-        </Form.Item>
         <Form.Item
           label="Tiêu đề"
           name="title"
@@ -192,25 +109,6 @@ const CreateArticle = ({ onCancel, value }) => {
             }
           />
         </Form.Item>
-        <Form.Item
-          label="Sơ lược"
-          name="summary"
-          rules={[
-            {
-              required: true,
-              message: "Sơ lược không được trống!",
-            },
-          ]}
-        >
-          <TextArea
-            name="SUMMARY"
-            placeholder="Sơ lược bài viết"
-            maxLength={500}
-            onChange={(e) =>
-              setDataCreate({ ...dataCreate, summary: e.target.value })
-            }
-          />
-        </Form.Item>
         <Form.Item label="Hastag" name="hastag">
           <Input
             name="HASTAG"
@@ -219,35 +117,6 @@ const CreateArticle = ({ onCancel, value }) => {
               setDataCreate({ ...dataCreate, hastag: "#" + e.target.value })
             }
           />
-        </Form.Item>
-        <Form.Item
-          label="Danh mục"
-          name="menu"
-          rules={[
-            {
-              required: true,
-              message: "Menu không được trống!",
-            },
-          ]}
-        >
-          <Select
-            style={{ width: "100%" }}
-            placeholder="Chọn danh mục"
-            allowClear
-            showSearch
-            filterOption={(input, option) =>
-              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-            }
-            onChange={(e) => setDataCreate({ ...dataCreate, menu: [e] })}
-          >
-            {menu.map((e) => {
-              return (
-                <Option key={e.id} value={e.id} label={e.name}>
-                  {e.name}
-                </Option>
-              );
-            })}
-          </Select>
         </Form.Item>
         <Form.Item label="Ngôn ngữ" name="language">
           <Select
@@ -314,4 +183,4 @@ const CreateArticle = ({ onCancel, value }) => {
   );
 };
 
-export default CreateArticle;
+export default CreateBlog;

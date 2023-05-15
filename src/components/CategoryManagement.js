@@ -5,22 +5,22 @@ import {
   EditOutlined,
   LoadingOutlined,
 } from "@ant-design/icons";
-import CreateArticle from "./CreateArticle";
-import EditArticle from "./EditArticle";
+import CreateCategory from "./CreateCategory";
+import EditCategory from "./EditCategory";
 import { GetArticle, DeleteArticle } from "../Service";
 
-const ArticleManagement = () => {
+const CategoryManagement = () => {
   const [articleList, setArticleList] = useState([]);
   async function getArticleListAPI() {
-    var menuArticle = JSON.parse(sessionStorage.getItem("menuArticle"));
+    var menuCategory = JSON.parse(sessionStorage.getItem("menuCategory"));
     var rolcode = sessionStorage.getItem("roleuser");
     let res = await GetArticle(
-      menuArticle.map((x) => x.id),
+      menuCategory.map((x) => x.value),
       rolcode
     );
     if (res) {
       setArticleList(
-        res.articlemenu?.map((x, index) => ({
+        res.articlemenu.map((x, index) => ({
           ...x.arc,
           key: index,
           ordinal: index + 1,
@@ -31,23 +31,21 @@ const ArticleManagement = () => {
       );
     }
   }
-  sessionStorage.setItem(
-    "articleAvailable",
-    articleList?.map((x) => parseInt(x.menu))
-  );
+
   useEffect(() => {
     getArticleListAPI();
   }, []);
+
   async function deleteArticleAPI() {
     let res = await DeleteArticle(dataDelete.id);
     if (res == "DELETE_SUCCESSFUL") {
       setIsModalOpen(false);
       getArticleListAPI();
-      message.success("Xóa bài viết thành công");
+      message.success("Xóa chuyên mục thành công");
     } else if (res == "DELETE_FAIL_NOT_ARTICLE_CREATOR") {
       setIsModalOpen(false);
       message.error(
-        "Người dùng không phải chủ nhân của bài viết hoặc không có quyền xóa bài viết này"
+        "Người dùng không phải chủ nhân của chuyên mục hoặc không có quyền xóa chuyên mục này"
       );
     }
   }
@@ -181,7 +179,7 @@ const ArticleManagement = () => {
         }}
       >
         <h1 className="text-secondary pt-3" style={{ fontSize: "2rem" }}>
-          Quản lý bài viết
+          Quản lý chuyên mục
         </h1>
       </div>
       <div
@@ -192,11 +190,23 @@ const ArticleManagement = () => {
         }}
       >
         <h1 className="text-secondary pt-3" style={{ fontSize: "1.5rem" }}>
-          <div>Danh sách bài viết</div>
+          <div>Danh sách chuyên mục</div>
         </h1>
         <Button type="primary" onClick={handleFormNew}>
-          Bài viết mới
+          Chuyên mục mới
         </Button>
+      </div>
+      <div className="modalEditGroup">
+        <Modal
+          title={<h5 className="text-secondary">Chỉnh sửa chuyên mục</h5>}
+          centered
+          visible={visibleEdit}
+          width={800}
+          onCancel={handleCancelEdit}
+          footer={false}
+        >
+          <EditCategory dataToUpdate={dataEdit} onCancel={handleCancelEdit} />
+        </Modal>
       </div>
       <div className="py-2 mt-2">
         {/* {articleList.length == 0 ? (
@@ -214,48 +224,36 @@ const ArticleManagement = () => {
           />
         )} */}
         <Table
-            size="middle"
-            style={{ paddingRight: "20px" }}
-            columns={columns}
-            bordered
-            pagination={{
-              pageSize: 5,
-            }}
-            dataSource={articleList}
-          />
-      </div>
-      <div className="modalEditGroup">
-        <Modal
-          title={<h5 className="text-secondary">Chỉnh sửa trang</h5>}
-          centered
-          visible={visibleEdit}
-          width={800}
-          onCancel={handleCancelEdit}
-          footer={false}
-        >
-          <EditArticle dataToUpdate={dataEdit} onCancel={handleCancelEdit} />
-        </Modal>
+          size="middle"
+          style={{ paddingRight: "20px" }}
+          columns={columns}
+          bordered
+          pagination={{
+            pageSize: 5,
+          }}
+          dataSource={articleList}
+        />
       </div>
       <div className="modalNewGroup">
         <Modal
-          title={<h5 className="text-secondary">Trang mới</h5>}
+          title={<h5 className="text-secondary">Chuyên mục mới</h5>}
           centered
           visible={visibleNew}
           width={930}
           onCancel={handleCancelNew}
           footer={false}
         >
-          <CreateArticle onCancel={handleCancelNew} />
+          <CreateCategory onCancel={handleCancelNew} />
         </Modal>
       </div>
       <div className="modalDelete">
         <Modal
-          title="Xóa bài viết"
+          title="Xóa chuyên mục"
           visible={isModalOpen}
           onCancel={handleCancel}
           footer={false}
         >
-          <p>Xác nhận xóa bài viết với tiêu đề "{dataDelete?.title}"?</p>
+          <p>Xác nhận xóa chuyên mục với tiêu đề "{dataDelete?.title}"?</p>
           <Space style={{ display: "flex", justifyContent: "flex-end" }}>
             <Button type="primary" onClick={handleCancel}>
               Hủy
@@ -269,4 +267,4 @@ const ArticleManagement = () => {
     </>
   );
 };
-export default ArticleManagement;
+export default CategoryManagement;

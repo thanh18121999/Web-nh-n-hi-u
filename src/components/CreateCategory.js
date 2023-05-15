@@ -1,35 +1,24 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Button, Space, Form, Input, Select, message } from "antd";
+import React, { useState, useRef } from "react";
+import { Button, Space, Form, Input, TreeSelect, Select, message } from "antd";
 import { AddArticle } from "../Service";
 import SunEditor from "suneditor-react";
 import "suneditor/src/assets/css/suneditor.css";
 
+const { SHOW_PARENT } = TreeSelect;
 const { TextArea } = Input;
 
-const CreateArticle = ({ onCancel, value }) => {
+const CreateCategory = ({ onCancel, value }) => {
   const editor = useRef();
   const getSunEditorInstance = (sunEditor) => {
     editor.current = sunEditor;
   };
-  const { Option } = Select;
+
   const [form] = Form.useForm();
-  const [menu, setMenu] = useState([]);
-  useEffect(() => {
-    const menuArticle = JSON.parse(sessionStorage.getItem("menuArticle"));
-    const menuHasPage = sessionStorage.getItem("articleAvailable").split(",");
-    subtractmenu(menuArticle, menuHasPage);
-  }, []);
-  function subtractmenu(a, b) {
-    for (var i = 0; i < a.length; i++) {
-      if (b.includes(a[i].id.toString())) {
-        const index = a.indexOf(a[i]);
-        a.splice(index, 1);
-        i--;
-      }
-    }
-    setMenu(a);
-  }
-  const [selectedFile, setSelectedFile] = useState();
+  const menu = sessionStorage.getItem("menuCategory")
+    ? JSON.parse(sessionStorage.getItem("menuCategory"))
+    : [];
+
+  const [selectedFile, setSelectedFile] = useState([]);
   const [view, setView] = useState([]);
   const [dataCreate, setDataCreate] = useState({
     avatar: [""],
@@ -81,14 +70,14 @@ const CreateArticle = ({ onCancel, value }) => {
       }
     }
   };
-  const CreateNewArticle = async () => {
+  async function CreateNewArticle() {
     if (!dataCreate.title) {
       message.error("Tiêu đề không được trống");
     } else if (!articlecontent) {
       message.error("Nội dung không được trống");
     } else if (dataCreate.menu.length == 0) {
       message.error("Menu không được trống");
-    } else if (dataCreate.avatar.length == 0) {
+    } else if (selectedFile?.length == 0) {
       message.error("Avatar không được trống");
     } else if (selectedFile?.size > 10485760) {
       message.error("Avatar không được vượt quá 10MB");
@@ -103,10 +92,10 @@ const CreateArticle = ({ onCancel, value }) => {
         articlecontent,
         onCancel
       );
-      if (result.statuscode == 200) {
+      if ((result.statuscode = 200)) {
         setDataCreate({
           ...dataCreate,
-          avatar: [],
+          avatar: [""],
           title: "",
           summary: "",
           hastag: "",
@@ -128,7 +117,7 @@ const CreateArticle = ({ onCancel, value }) => {
         message.error("Thêm bài viết thất bại");
       }
     }
-  };
+  }
 
   function handleChangeImage(e) {
     if (e.target.files[0]?.size > 10485760) {
@@ -140,7 +129,7 @@ const CreateArticle = ({ onCancel, value }) => {
       var iduser = JSON.parse(sessionStorage.getItem("iduser"));
       formDataAvatar.append("ID_User", iduser);
       formDataAvatar.append("My_File", e.target.files[0]);
-      formDataAvatar.append("File_Name", "pa");
+      formDataAvatar.append("File_Name", "aa");
       fetch("https://brandname.phuckhangnet.vn/api/upload/verify_upload", {
         method: "POST",
         body: formDataAvatar,
@@ -154,6 +143,24 @@ const CreateArticle = ({ onCancel, value }) => {
         });
     }
   }
+
+  const [treeval, setTreeval] = useState(undefined);
+  const onChange = (newValue) => {
+    setTreeval(newValue);
+    setDataCreate({ ...dataCreate, menu: newValue });
+  };
+  const treeData = menu;
+  const tProps = {
+    treeData,
+    treeval,
+    onChange,
+    treeCheckable: true,
+    showCheckedStrategy: SHOW_PARENT,
+    placeholder: "Please select",
+    style: {
+      width: "100%",
+    },
+  };
   return (
     <div className="create-group">
       <Form
@@ -230,24 +237,14 @@ const CreateArticle = ({ onCancel, value }) => {
             },
           ]}
         >
-          <Select
-            style={{ width: "100%" }}
-            placeholder="Chọn danh mục"
-            allowClear
-            showSearch
-            filterOption={(input, option) =>
-              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-            }
-            onChange={(e) => setDataCreate({ ...dataCreate, menu: [e] })}
-          >
-            {menu.map((e) => {
+          <TreeSelect
+            {...tProps}
+            filterTreeNode={(search, item) => {
               return (
-                <Option key={e.id} value={e.id} label={e.name}>
-                  {e.name}
-                </Option>
+                item.title.toLowerCase().indexOf(search.toLowerCase()) >= 0
               );
-            })}
-          </Select>
+            }}
+          />
         </Form.Item>
         <Form.Item label="Ngôn ngữ" name="language">
           <Select
@@ -314,4 +311,4 @@ const CreateArticle = ({ onCancel, value }) => {
   );
 };
 
-export default CreateArticle;
+export default CreateCategory;

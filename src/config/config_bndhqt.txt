@@ -1,0 +1,23 @@
+-- THÔNG TIN HOST --
+-- NHÂN HIỆU --
+
+(*) URL:
+-- UI: https://bndhqt.phuckhangnet.vn
+-- ADMIN: https://bndhqt.phuckhangnet.vn/admin
+-- API: https://bndhqt.phuckhangnet.vn/api
+
+(*) FTP:
+-- user: bndhqt
+-- pass: daihocquocte@2023
+-- url:
+--- up UI trong thư mục: ftp://112.78.2.36/
+--- up trang quản trị trong thư mục: ftp://112.78.2.36/admin
+--- up api trong thư mục: ftp://112.78.2.36/api
+--- up image cho bài viết trong thư mục: ftp://112.78.2.36/ftp_images
+--- up file cho phần kho lưu trữ trong thư mục: ftp://112.78.2.36/ftp_storage
+
+(*) DATABASE:
+-- IP: 112.78.2.36,1433
+-- db name: phu61494_bndhqt
+-- user: phu61494_bndhqt
+-- pass: daihocquocte@2023

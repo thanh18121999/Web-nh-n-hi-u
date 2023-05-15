@@ -23,6 +23,8 @@ module.exports = (e, argv) => {
     },
     resolve: {
       fallback: {
+        stream: require.resolve("stream-browserify"),
+        buffer: require.resolve("buffer"),
         util: require.resolve("util/"),
         fs: false,
       },
@@ -47,9 +49,20 @@ module.exports = (e, argv) => {
           test: /\.(s*)css$/,
           use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
         },
+        {
+          test: /\.(png|jpg|jpeg|gif)$/i,
+          type: "asset/resource",
+        },
       ],
     },
     plugins: [
+      new webpack.ProvidePlugin({
+        $: "jquery",
+        jQuery: "jquery",
+        store: "store",
+        process: "process/browser",
+        Buffer: ["buffer", "Buffer"],
+      }),
       new HtmlWebpackPlugin({
         template: "./public/index.html",
         filename: "index.html",
@@ -66,7 +79,7 @@ module.exports = (e, argv) => {
     devServer: {
       static: path.join(__dirname, "dist"),
       compress: true,
-      port: 8080,
+      port: 8000,
       historyApiFallback: true,
       open: true,
     },

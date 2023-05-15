@@ -1,102 +1,173 @@
-import React, { useState } from "react";
-import { Button, Table, Modal } from "antd";
+import React, { useState, useEffect } from "react";
+import { Button, Table, Modal, Space, message } from "antd";
 import {
-  InfoCircleOutlined,
-  DeleteOutlined,
+  EditOutlined,
+  LoadingOutlined,
   LockOutlined,
+  UnlockOutlined,
 } from "@ant-design/icons";
 
 import CreateUser from "../components/CreateUser";
 import EditUser from "../components/EditUser";
+import { getStaffList, UserUpdateStatus, UserResetPassword } from "../Service";
 
 const UserManagement = () => {
   const [dataEdit, setDataEdit] = useState();
   const [visibleEdit, setVisibleEdit] = useState(false);
   const [visibleNew, setVisibleNew] = useState(false);
 
-  const user = [
-    {
-      key: "1",
-      ACCOUNT: "00000",
-      PASSWORD: "1",
-      INDEX: "1",
-      NAME: "Nguyễn Văn Thuận",
-      ROLE: "Trưởng khoa",
-    },
-    {
-      key: "2",
-      ACCOUNT: "00001",
-      PASSWORD: "1",
-      INDEX: "2",
-      NAME: "Nguyễn Hoàng Khuê Tú",
-      ROLE: "Phó khoa",
-    },
-    {
-      key: "3",
-      ACCOUNT: "00002",
-      PASSWORD: "1",
-      INDEX: "3",
-      NAME: "Nguyễn minh Thành",
-      ROLE: "Phó khoa",
-    },
-  ];
-  const columns = [
+  const [staffList, setStaffList] = useState([]);
+  var userRole = sessionStorage.getItem("roleuser");
+  async function getStaffListAPI() {
+    let res = await getStaffList();
+    if (res) {
+      if (userRole == "ADMI") {
+        setStaffList(
+          res.responses.map((x, index) => ({
+            ...x.user,
+            detail: x.userdetail,
+            position: x.positions,
+            title: x.titles,
+            department: x.departments,
+            roledes: x.rolesdescription,
+            key: index,
+            ordinal: index + 1,
+          }))
+        );
+      } else {
+        setStaffList(
+          res.responses
+            .filter((x) => x.user.id == sessionStorage.getItem("iduser"))
+            .map((x, index) => ({
+              ...x.user,
+              detail: x.userdetail,
+              position: x.positions,
+              title: x.titles,
+              department: x.departments,
+              roledes: x.rolesdescription,
+              key: index,
+              ordinal: index + 1,
+            }))
+        );
+      }
+    }
+  }
+  useEffect(() => {
+    getStaffListAPI();
+  }, []);
+  async function handleUpdateStatus(id) {
+    await UserUpdateStatus(id);
+    getStaffListAPI();
+  }
+  async function handleResetPassword() {
+    let res = await UserResetPassword(dataReset.username);
+    if ((res.statuscode = 200)) {
+      setIsModalOpen(false);
+      getStaffListAPI();
+      message.success(
+        'Đặt lại mật khẩu thành công, mật khẩu hiện tại là "123456"'
+      );
+    } else {
+      setIsModalOpen(false);
+      message.error("Đặt lại mật khẩu thất bại");
+    }
+  }
+  const [dataReset, setDataReset] = useState();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const AdminColumns = [
     {
       title: "Số thứ tự",
-      dataIndex: "INDEX",
+      dataIndex: "ordinal",
       align: "center",
-      width: "8%",
+      width: "10%",
     },
     {
       title: "Tài khoản",
-      dataIndex: "ACCOUNT",
+      dataIndex: "username",
       align: "center",
-      width: "10%",
+      width: "15%",
     },
     {
       title: "Họ tên",
-      dataIndex: "NAME",
+      dataIndex: "name",
       align: "center",
-      width: "22%",
+      width: "25%",
+      render: (_, record) => {
+        return record.detail?.name;
+      },
     },
     {
-      title: "Chức vụ",
-      dataIndex: "ROLE",
+      title: "Quyền",
+      dataIndex: "role",
       align: "center",
-      width: "10%",
+      width: "20%",
+      render: (_, record) => {
+        return record.roledes;
+      },
     },
     {
       title: "",
       dataIndex: "LOCK",
       align: "center",
-      width: "10%",
+      width: "5%",
       render: (_, record) => {
-        return (
-          <>
-            <span>
-              <LockOutlined
-                onClick={() => {}}
-                style={{
-                  cursor: "pointer",
-                  fontSize: "20px",
-                  color: "#009933",
-                }}
-              />
-            </span>
-          </>
-        );
+        if (record.status === 1) {
+          return (
+            <>
+              <span>
+                <UnlockOutlined
+                  onClick={() => handleUpdateStatus(record.id)}
+                  style={{
+                    cursor: "pointer",
+                    fontSize: "20px",
+                    color: "#009933",
+                  }}
+                />
+              </span>
+            </>
+          );
+        } else {
+          return (
+            <>
+              <span>
+                <LockOutlined
+                  onClick={() => handleUpdateStatus(record.id)}
+                  style={{
+                    cursor: "pointer",
+                    fontSize: "20px",
+                    color: "#ff0000",
+                  }}
+                />
+              </span>
+            </>
+          );
+        }
       },
     },
     {
       title: "",
-      dataIndex: "CHANGEPASSWORD",
+      dataIndex: "resetpassword",
       align: "center",
       width: "20%",
       render: (_, record) => {
         return (
           <>
             <span>
-              <Button style={{ color: "black", background: "white" }}>
+              <Button
+                style={{ color: "black", background: "white" }}
+                //onClick={() => handleResetPassword(record.username)}
+                onClick={() => {
+                  showModal();
+                  setDataReset(record);
+                }}
+              >
                 Đặt lại mật khẩu
               </Button>
             </span>
@@ -108,15 +179,14 @@ const UserManagement = () => {
       title: "",
       dataIndex: "DETAIL",
       align: "center",
-      width: "10%",
+      width: "5%",
       render: (_, record) => {
         return (
           <>
             <span>
-              <InfoCircleOutlined
+              <EditOutlined
                 onClick={() => {
-                  handleFormEdit();
-                  setDataEdit(record);
+                  handleFormEdit(record);
                 }}
                 style={{
                   cursor: "pointer",
@@ -129,21 +199,46 @@ const UserManagement = () => {
         );
       },
     },
+  ];
+  const UserColumns = [
     {
-      title: "",
-      dataIndex: "DELETE",
+      title: "Số thứ tự",
+      dataIndex: "ordinal",
       align: "center",
       width: "10%",
+    },
+    {
+      title: "Tài khoản",
+      dataIndex: "username",
+      align: "center",
+      width: "20%",
+    },
+    {
+      title: "Họ tên",
+      dataIndex: "name",
+      align: "center",
+      width: "30%",
+      render: (_, record) => {
+        return record.detail?.name;
+      },
+    },
+    {
+      title: "",
+      dataIndex: "DETAIL",
+      align: "center",
+      width: "5%",
       render: (_, record) => {
         return (
           <>
             <span>
-              <DeleteOutlined
-                onClick={() => {}}
+              <EditOutlined
+                onClick={() => {
+                  handleFormEdit(record);
+                }}
                 style={{
                   cursor: "pointer",
                   fontSize: "20px",
-                  color: "#ff0000",
+                  color: "#000000",
                 }}
               />
             </span>
@@ -153,7 +248,8 @@ const UserManagement = () => {
     },
   ];
 
-  const handleFormEdit = () => {
+  const handleFormEdit = (e) => {
+    setDataEdit(e);
     setVisibleEdit(true);
   };
   const handleFormNew = () => {
@@ -161,11 +257,12 @@ const UserManagement = () => {
   };
   const handleCancelEdit = () => {
     setVisibleEdit(false);
+    getStaffListAPI();
   };
   const handleCancelNew = () => {
     setVisibleNew(false);
+    getStaffListAPI();
   };
-
   return (
     <>
       <div
@@ -175,9 +272,15 @@ const UserManagement = () => {
           borderRadius: "20px",
         }}
       >
-        <h1 className="text-secondary pt-3" style={{ fontSize: "2rem" }}>
-          Quản lý người dùng
-        </h1>
+        {userRole?.includes("ADMI") ? (
+          <h1 className="text-secondary pt-3" style={{ fontSize: "2rem" }}>
+            Quản lý người dùng
+          </h1>
+        ) : (
+          <h1 className="text-secondary pt-3" style={{ fontSize: "2rem" }}>
+            Chỉnh sửa tài khoản
+          </h1>
+        )}
       </div>
       <div
         style={{
@@ -186,26 +289,48 @@ const UserManagement = () => {
           marginRight: "1.3rem",
         }}
       >
-        <h1 className="text-secondary pt-3" style={{ fontSize: "1.5rem" }}>
-          <div>Danh sách người dùng</div>
-        </h1>
-        <Button type="primary" onClick={handleFormNew}>
-          Thêm người dùng
-        </Button>
+        {userRole?.includes("ADMI") ? (
+          <h1 className="text-secondary pt-3" style={{ fontSize: "1.5rem" }}>
+            <div>Danh sách người dùng</div>
+          </h1>
+        ) : (
+          <h1 className="text-secondary pt-3" style={{ fontSize: "1.5rem" }}>
+            <div>Tài khoản của tôi</div>
+          </h1>
+        )}
+        {userRole?.includes("ADMI") ? (
+          <Button type="primary" onClick={handleFormNew}>
+            Thêm tài khoản
+          </Button>
+        ) : null}
       </div>
       <div className="py-2 mt-2">
+        {/* {staffList.length == 0 ? (
+          <LoadingOutlined />
+        ) : (
+          <Table
+            size="middle"
+            style={{ paddingRight: "20px" }}
+            columns={userRole?.includes("ADMI") ? AdminColumns : UserColumns}
+            bordered
+            pagination={{
+              pageSize: 6,
+            }}
+            dataSource={staffList}
+          />
+        )} */}
         <Table
           size="middle"
           style={{ paddingRight: "20px" }}
-          columns={columns}
+          columns={userRole?.includes("ADMI") ? AdminColumns : UserColumns}
           bordered
           pagination={{
-            pageSize: 4,
+            pageSize: 6,
           }}
-          dataSource={user}
+          dataSource={staffList}
         />
       </div>
-      <div className="modaEditGroup">
+      <div className="modalEditGroup">
         <Modal
           title={
             <h5 className="text-secondary">Chỉnh sửa thông tin người dùng</h5>
@@ -219,16 +344,34 @@ const UserManagement = () => {
           <EditUser dataToUpdate={dataEdit} onCancel={handleCancelEdit} />
         </Modal>
       </div>
-      <div className="modaNewGroup">
+      <div className="modalNewGroup">
         <Modal
           title={<h5 className="text-secondary">Thêm người dùng mới</h5>}
           centered
           visible={visibleNew}
-          width={800}
+          width={850}
           onCancel={handleCancelNew}
           footer={false}
         >
           <CreateUser onCancel={handleCancelNew} />
+        </Modal>
+      </div>
+      <div className="modalResetPassword">
+        <Modal
+          title="Đặt lại mật khẩu"
+          visible={isModalOpen}
+          onCancel={handleCancel}
+          footer={false}
+        >
+          <p>Xác nhận đặt lại mật khẩu tài khoản "{dataReset?.username}"?</p>
+          <Space style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button type="primary" onClick={handleCancel}>
+              Hủy
+            </Button>
+            <Button type="primary" onClick={handleResetPassword}>
+              Xác nhận
+            </Button>
+          </Space>
         </Modal>
       </div>
     </>
